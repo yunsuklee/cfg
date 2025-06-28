@@ -1,0 +1,11 @@
+[general]
+import = [
+    "~/.config/alacritty/themes/themes/gruvbox_dark.toml"
+]
+
+[window]
+padding = { x = 10, y = 0 }
+
+[font]
+size = 14
+
