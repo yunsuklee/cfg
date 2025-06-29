@@ -288,8 +288,8 @@ fi
 # IMPORT MACHINE SPECIFIC CONFIGURATION 
 #######################################################
 
-if [ -f ~/.bashrc.local ]; then
-	source ~/.bashrc.local
+if [ -f ~/.bashrc.local ]; 
+     source ~/.bashrc.local
 fi
 
 #######################################################
@@ -297,7 +297,9 @@ fi
 #######################################################
 
 # Starship
-eval "$(starship init bash)"
+if command -v starship &> /dev/null; then
+    eval "$(starship init bash)"
+fi
 
 # Source Rust environment
 if [ -f "$HOME/.cargo/env" ]; then
