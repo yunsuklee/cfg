@@ -288,8 +288,8 @@ fi
 # IMPORT MACHINE SPECIFIC CONFIGURATION 
 #######################################################
 
-if [ -f ~/.bashrc.local ]; 
-     source ~/.bashrc.local
+if [ -f ~/.bashrc.local ]; then
+    source ~/.bashrc.local
 fi
 
 #######################################################
