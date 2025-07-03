@@ -71,7 +71,7 @@ export VISUAL=nvim
 #######################################################
 
 alias find='fd'
-alias cat='bat'
+alias cat='batcat'
 alias grep='rg'
 alias ls='eza -a --color=auto --group-directories-first'
 alias ll='eza -la --color=auto --group-directories-first'
