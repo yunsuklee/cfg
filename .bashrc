@@ -71,10 +71,15 @@ export VISUAL=nvim
 #######################################################
 
 alias find='fd'
-alias cat='batcat'
 alias grep='rg'
 alias ls='eza -a --color=auto --group-directories-first'
 alias ll='eza -la --color=auto --group-directories-first'
+
+if command -v batcat &> /dev/null; then
+    alias cat='batcat --style=auto'
+elif command -v bat &> /dev/null; then
+    alias cat='bat --style=auto'
+fi
 
 #######################################################
 # SAFETY ALIASES
