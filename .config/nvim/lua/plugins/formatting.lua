@@ -1,4 +1,5 @@
 return {
+
   { -- Detect tabstop and shiftwidth automatically
     'NMAC427/guess-indent.nvim',
     event = { 'BufReadPre', 'BufNewFile' },
@@ -36,6 +37,7 @@ return {
         end
       end,
       formatters_by_ft = {
+        ['*'] = { 'trim_whitespace' },
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
@@ -45,5 +47,4 @@ return {
       },
     },
   },
-
 }

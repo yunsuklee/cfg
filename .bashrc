@@ -31,7 +31,7 @@ fi
 #######################################################
 
 # Disable annoying bell, use visual instead
-if [[ $iatest -gt 0 ]]; then 
+if [[ $iatest -gt 0 ]]; then
     bind "set bell-style visible"
 fi
 set bell-style none
@@ -160,16 +160,28 @@ quiet() {
 
 # Enhanced cd with automatic ls
 cd() {
+    local result
+
     if [ $# -eq 0 ]; then
-        # No arguments, go to home (like original cd)
+        # No arguments, go to home
         builtin cd
-    elif [ -d "$1" ]; then
-        # If it's a valid directory, use original cd
-        builtin cd "$1"
-    else
-        # Otherwise, try zoxide
+        result=$?
+    elif command -v zoxide &> /dev/null; then
+        # Zoxide is available, use it for all cases
         z "$1"
+        result=$?
+    else
+        # Fallback to builtin cd if zoxide not available
+        builtin cd "$1"
+        result=$?
     fi
+
+    # If cd was successful, run ls
+    if [ $result -eq 0 ]; then
+        ls
+    fi
+
+    return $result
 }
 
 # Create directory and enter it
@@ -252,35 +264,35 @@ extract() {
 update_all() {
     echo "🚀 Starting system-wide updates..."
     echo "=================================="
-    
+
     # DNF updates
     echo "📦 Updating DNF packages..."
     sudo dnf upgrade --refresh -y
-    
+
     # Clean DNF cache
     echo "🧹 Cleaning DNF cache..."
     sudo dnf clean all
-    
-    # Flatpak updates  
+
+    # Flatpak updates
     echo "📱 Updating Flatpak applications..."
     flatpak update -y
-    
+
     # Clean Flatpak cache
     echo "🧹 Cleaning Flatpak cache..."
     flatpak uninstall --unused -y
-    
+
     # Cargo updates (if you have cargo-update installed)
     if command -v cargo-install-update &> /dev/null; then
         echo "🦀 Updating Rust packages..."
         cargo install-update -a
     fi
-    
+
     # Update fastfetch (system info tool)
     if command -v fastfetch &> /dev/null; then
         echo "💻 System info after updates:"
         fastfetch
     fi
-    
+
     echo "✅ All updates completed!"
     echo "🔄 Consider rebooting if kernel was updated."
 }
@@ -295,7 +307,7 @@ if [[ "$(tty)" == "/dev/tty1" ]] && [ -f "$HOME/.xinitrc" ] && grep -q "^exec dw
 fi
 
 #######################################################
-# IMPORT MACHINE SPECIFIC CONFIGURATION 
+# IMPORT MACHINE SPECIFIC CONFIGURATION
 #######################################################
 
 if [ -f ~/.bashrc.local ]; then

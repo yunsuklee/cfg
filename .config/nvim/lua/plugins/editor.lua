@@ -1,5 +1,4 @@
 return {
-  
   { -- Fuzzy Finder (files, lsp, etc)
     'nvim-telescope/telescope.nvim',
     event = 'VimEnter',
@@ -105,10 +104,10 @@ return {
   },
 
   { -- Highlight todo, notes, etc in comments
-    'folke/todo-comments.nvim', 
-    event = 'VimEnter', 
+    'folke/todo-comments.nvim',
+    event = 'VimEnter',
     dependencies = { 'nvim-lua/plenary.nvim' },
-    opts = { signs = false }
+    opts = { signs = false },
   },
 
   { -- Collection of various small independent plugins/modules
@@ -149,4 +148,16 @@ return {
     end,
   },
 
+  { -- Add indentation guides even on blank lines
+    'lukas-reineke/indent-blankline.nvim',
+    -- See `:help ibl`
+    main = 'ibl',
+    opts = {},
+  },
+
+  { -- autopairs
+    'windwp/nvim-autopairs',
+    event = 'InsertEnter',
+    opts = {},
+  },
 }
