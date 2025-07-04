@@ -52,4 +52,25 @@ return {
       },
     },
   },
+  { -- Integrated terminal
+    'akinsho/toggleterm.nvim',
+    version = '*',
+    keys = {
+      { '<C-\\>', '<cmd>ToggleTerm<cr>', desc = 'Toggle terminal', mode = { 'n', 't' } },
+      { '<leader>th', '<cmd>ToggleTerm direction=horizontal size=15<cr>', desc = 'Horizontal terminal' },
+      { '<leader>tv', '<cmd>ToggleTerm direction=vertical size=80<cr>', desc = 'Vertical terminal' },
+      { '<leader>tf', '<cmd>ToggleTerm direction=float<cr>', desc = 'Floating terminal' },
+    },
+    opts = {
+      direction = 'float',
+      float_opts = {
+        border = 'curved',
+        winblend = 0,
+        highlights = {
+          border = 'Normal',
+          background = 'Normal',
+        },
+      },
+    },
+  },
 }
