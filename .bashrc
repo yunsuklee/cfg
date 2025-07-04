@@ -70,7 +70,12 @@ export VISUAL=nvim
 # MODERN TOOL REPLACEMENTS
 #######################################################
 
-alias find='fd'
+if command -v fd &> /dev/null; then
+    alias find='fd'
+elif command -v fd-find &> /dev/null; then
+    alias find='fd-find'
+fi
+
 alias grep='rg'
 alias ls='eza -a --color=auto --group-directories-first'
 alias ll='eza -la --color=auto --group-directories-first'
