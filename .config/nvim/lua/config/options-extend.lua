@@ -27,3 +27,9 @@ vim.g.loaded_rrhelper = 1 -- Helper for remote plugins
 -- Disable other built-in plugins
 vim.g.loaded_spellfile_plugin = 1 -- Spell file management
 vim.g.loaded_tutor_mode_plugin = 1 -- Vim tutor (:Tutor command)
+
+-- Disable built-in file explorer since we're using Oil
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+vim.g.loaded_netrwSettings = 1
+vim.g.loaded_netrwFileHandlers = 1
