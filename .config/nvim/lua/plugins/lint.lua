@@ -1,8 +1,7 @@
 return {
-
   { -- Linting
     'mfussenegger/nvim-lint',
-    event = { 'BufReadPre', 'BufNewFile' },
+    event = { 'BufReadPost', 'BufWritePost', 'BufNewFile' }, -- Load when reading, writing or creating file
     config = function()
       local lint = require 'lint'
       lint.linters_by_ft = {

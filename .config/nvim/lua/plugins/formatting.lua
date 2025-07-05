@@ -1,15 +1,14 @@
 return {
-
   { -- Detect tabstop and shiftwidth automatically
     'NMAC427/guess-indent.nvim',
-    event = { 'BufReadPre', 'BufNewFile' },
+    event = 'BufReadPost', -- Load after file content is loaded
     opts = {},
   },
 
   { -- Autoformat
     'stevearc/conform.nvim',
-    event = { 'BufWritePre' },
-    cmd = { 'ConformInfo' },
+    event = 'BufWritePre', -- Load when about to save a file
+    cmd = 'ConformInfo', -- Also load when command is used
     keys = {
       {
         '<leader>f',

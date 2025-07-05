@@ -1,8 +1,7 @@
 return {
-  {
-    -- Useful plugin to show you pending keybinds.
+  { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
-    event = 'VimEnter', -- Sets the loading event to 'VimEnter'
+    event = 'VeryLazy',
     opts = {
       -- delay between pressing a key and opening which-key (milliseconds)
       -- this setting is independent of vim.o.timeoutlen
@@ -55,6 +54,7 @@ return {
   { -- Integrated terminal
     'akinsho/toggleterm.nvim',
     version = '*',
+    cmd = 'ToggleTerm',
     keys = {
       { '<C-\\>', '<cmd>ToggleTerm<cr>', desc = 'Toggle terminal', mode = { 'n', 't' } },
       { '<leader>th', '<cmd>ToggleTerm direction=horizontal size=15<cr>', desc = 'Horizontal terminal' },

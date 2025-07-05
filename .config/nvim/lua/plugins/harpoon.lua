@@ -79,6 +79,7 @@ return {
   },
   config = function()
     require('harpoon'):setup()
+    -- NOTE: telescope extension will be loaded when telescope loads
     require('telescope').load_extension 'harpoon'
   end,
 }
