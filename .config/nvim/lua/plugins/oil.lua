@@ -11,9 +11,9 @@ return {
     delete_to_trash = true,
     columns = {
       'icon',
-      'permissions',
-      'size',
-      'mtime',
+      -- 'permissions',
+      -- 'size',
+      -- 'mtime',
     },
     view_options = {
       show_hidden = true,
