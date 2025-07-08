@@ -61,8 +61,6 @@ fi
 #######################################################
 
 export STARSHIP_CONFIG=~/.config/starship/starship.toml
-
-# Default editors
 export EDITOR=nvim
 export VISUAL=nvim
 
@@ -90,7 +88,6 @@ fi
 # SAFETY ALIASES
 #######################################################
 
-# Interactive/safe versions of destructive commands
 alias cp='cp -i'
 alias mv='mv -i'
 alias rm='trash -v'  # Use trash-cli for recoverable deletion
@@ -258,43 +255,6 @@ extract() {
             echo "'$archive' is not a valid file!"
         fi
     done
-}
-
-# Universal system update function
-update_all() {
-    echo "🚀 Starting system-wide updates..."
-    echo "=================================="
-
-    # DNF updates
-    echo "📦 Updating DNF packages..."
-    sudo dnf upgrade --refresh -y
-
-    # Clean DNF cache
-    echo "🧹 Cleaning DNF cache..."
-    sudo dnf clean all
-
-    # Flatpak updates
-    echo "📱 Updating Flatpak applications..."
-    flatpak update -y
-
-    # Clean Flatpak cache
-    echo "🧹 Cleaning Flatpak cache..."
-    flatpak uninstall --unused -y
-
-    # Cargo updates (if you have cargo-update installed)
-    if command -v cargo-install-update &> /dev/null; then
-        echo "🦀 Updating Rust packages..."
-        cargo install-update -a
-    fi
-
-    # Update fastfetch (system info tool)
-    if command -v fastfetch &> /dev/null; then
-        echo "💻 System info after updates:"
-        fastfetch
-    fi
-
-    echo "✅ All updates completed!"
-    echo "🔄 Consider rebooting if kernel was updated."
 }
 
 #######################################################
