@@ -64,7 +64,6 @@ export STARSHIP_CONFIG=~/.config/starship/starship.toml
 export EDITOR=nvim
 export VISUAL=nvim
 
-#######################################################
 # MODERN TOOL REPLACEMENTS
 #######################################################
 
@@ -102,7 +101,6 @@ alias ps='ps auxf'
 alias less='less -R'
 alias multitail='multitail --no-repeat -c'
 alias rmd='/bin/rm --recursive --force --verbose'
-alias freshclam='sudo freshclam'
 
 # Editor aliases
 alias vim='nvim'
@@ -155,30 +153,14 @@ quiet() {
     "$@" &> /dev/null &
 }
 
-# Enhanced cd with automatic ls
-cd() {
-    local result
-
-    if [ $# -eq 0 ]; then
-        # No arguments, go to home
-        builtin cd
-        result=$?
-    elif command -v zoxide &> /dev/null; then
-        # Zoxide is available, use it for all cases
-        z "$1"
-        result=$?
-    else
-        # Fallback to builtin cd if zoxide not available
-        builtin cd "$1"
-        result=$?
-    fi
-
-    # If cd was successful, run ls
-    if [ $result -eq 0 ]; then
-        ls
-    fi
-
-    return $result
+# Automatically do an ls after each cd, z, or zoxide
+cd ()
+{
+	if [ -n "$1" ]; then
+		builtin cd "$@" && ls
+	else
+		builtin cd ~ && ls
+	fi
 }
 
 # Create directory and enter it
@@ -295,3 +277,7 @@ fi
 
 # Initialize modern shell tools
 eval "$(zoxide init bash)"
+
+
+
+
