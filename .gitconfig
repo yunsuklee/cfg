@@ -48,4 +48,4 @@
     diff = auto
     status = auto
 [include]
-	path = ~/.gitconfig.local
+	path = ~/.gitconfig_local
