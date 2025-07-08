@@ -75,8 +75,8 @@ elif command -v fd-find &> /dev/null; then
 fi
 
 alias grep='rg'
-alias ls='eza -a --color=auto --group-directories-first'
-alias ll='eza -la --color=auto --group-directories-first'
+alias ls='eza -a --color=auto --group-directories-first --git --icons'
+alias ll='eza -la --color=auto --group-directories-first --git --icons'
 
 if command -v batcat &> /dev/null; then
     alias cat='batcat --style=auto'
