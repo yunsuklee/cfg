@@ -128,7 +128,7 @@ alias .....='cd ../../../..'
 alias cfg='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 alias cl="clear"
 alias vbrc="nvim ~/.bashrc"
-alias vbrcl="nvim ~/.bashrc.local"
+alias vbrcl="nvim ~/.bashrc_local"
 alias sbrc="source ~/.bashrc"
 alias xdg="xdg-open"
 alias qt="quiet"
@@ -141,6 +141,7 @@ alias countfiles="for t in files links directories; do echo \`find . -type \${t:
 alias checkcommand="type -t"
 alias rebootsafe='sudo shutdown -r now'
 alias rebootforce='sudo shutdown -r -n now'
+alias hibernate='sudo systemctl hibernate'
 alias logs="sudo find /var/log -type f -exec file {} \; | grep 'text' | cut -d' ' -f1 | sed -e's/:$//g' | grep -v '[0-9]$' | xargs tail -f"
 alias upall='update_all'
 
