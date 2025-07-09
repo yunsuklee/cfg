@@ -258,6 +258,56 @@ if [ -f ~/.bashrc_local ]; then
 fi
 
 #######################################################
+# ADDITIONAL USEFUL FEATURES FROM DEFAULT UBUNTU/POP!_OS
+#######################################################
+
+# Enable globstar for recursive directory matching with **
+# This allows patterns like "**/*.rs" to match files recursively
+shopt -s globstar
+
+# Make less more friendly for non-text input files (works on both Ubuntu and Pop!_OS)
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+# Set variable identifying the chroot environment (useful for containers and WSL)
+if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
+fi
+
+# Colored GCC warnings and errors (useful for C/C++/Rust development)
+export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+
+# Enable color support for more commands if dircolors is available
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    # Your existing aliases already cover ls and grep
+fi
+
+# Alert alias for long running commands - cross-platform notification
+# Usage: long_command; alert
+# Works with both native Linux notifications and WSL (if Windows notifications are set up)
+if command -v notify-send &> /dev/null; then
+    # Native Linux (Pop!_OS, Ubuntu desktop)
+    alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+elif [[ -n "${WSL_DISTRO_NAME:-}" ]] && command -v powershell.exe &> /dev/null; then
+    # WSL with Windows PowerShell available
+    alias alert='powershell.exe -Command "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show(\"Command finished: $(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')\", \"Terminal Alert\")"'
+else
+    # Fallback: just echo (works everywhere)
+    alias alert='echo "Alert: $(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'') - Command finished"'
+fi
+
+# Set terminal title to show current directory (works in most terminals including WSL)
+case "$TERM" in
+xterm*|rxvt*|alacritty*|screen*|tmux*)
+    # Update terminal title with user@host:directory
+    # This works in both native Linux and WSL terminals
+    PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD}\007"'
+    ;;
+*)
+    ;;
+esac
+
+#######################################################
 # TOOL INITIALIZATION
 #######################################################
 
