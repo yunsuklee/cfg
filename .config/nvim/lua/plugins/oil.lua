@@ -18,6 +18,11 @@ return {
     view_options = {
       show_hidden = true,
     },
+    keymaps = {
+      ['q'] = 'actions.close',
+      ['<C-c'] = 'actions.close',
+      ['<Esc>'] = 'actions.close',
+    },
   },
   dependencies = { { 'echasnovski/mini.icons', opts = {} } },
 }
