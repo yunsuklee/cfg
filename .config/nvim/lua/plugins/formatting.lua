@@ -25,7 +25,7 @@ return {
         -- Disable "format_on_save lsp_fallback" for languages that don't
         -- have a well standardized coding style. You can add additional
         -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true }
+        local disable_filetypes = {} -- Removed c and cpp since clang-format is well standardized
         if disable_filetypes[vim.bo[bufnr].filetype] then
           return nil
         else
@@ -38,11 +38,33 @@ return {
       formatters_by_ft = {
         ['*'] = { 'trim_whitespace' },
         lua = { 'stylua' },
+        rust = { 'rustfmt' },
+        -- C/C++ formatting
+        c = { 'clang-format' },
+        cpp = { 'clang-format' },
+        -- TypeScript/JavaScript formatting
+        javascript = { 'prettierd', 'prettier', stop_after_first = true },
+        typescript = { 'prettierd', 'prettier', stop_after_first = true },
+        javascriptreact = { 'prettierd', 'prettier', stop_after_first = true },
+        typescriptreact = { 'prettierd', 'prettier', stop_after_first = true },
+        -- Web technologies
+        json = { 'prettierd', 'prettier', stop_after_first = true },
+        html = { 'prettierd', 'prettier', stop_after_first = true },
+        css = { 'prettierd', 'prettier', stop_after_first = true },
+        scss = { 'prettierd', 'prettier', stop_after_first = true },
+        markdown = { 'prettierd', 'prettier', stop_after_first = true },
+        yaml = { 'prettierd', 'prettier', stop_after_first = true },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
-        --
-        -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
+      },
+      formatters = {
+        prettier = {
+          -- You can customize prettier options here
+          prepend_args = { '--single-quote', '--trailing-comma', 'es5' },
+        },
+        prettierd = {
+          -- prettierd inherits prettier config automatically
+        },
       },
     },
   },
