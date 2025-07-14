@@ -121,6 +121,62 @@ return {
       vim.keymap.set('n', 'gco', 'o<Esc>gcc', { desc = 'Add comment below' })
       vim.keymap.set('n', 'gcO', 'O<Esc>gcc', { desc = 'Add comment above' })
 
+      require('mini.files').setup {
+        content = {
+          filter = function(entry)
+            return entry.name ~= '.git' and entry.name ~= 'node_modules'
+          end,
+          sort = function(entries)
+            -- Sort directories first, then files
+            local dirs, files = {}, {}
+            for _, entry in ipairs(entries) do
+              if entry.fs_type == 'directory' then
+                table.insert(dirs, entry)
+              else
+                table.insert(files, entry)
+              end
+            end
+            table.sort(dirs, function(a, b)
+              return a.name < b.name
+            end)
+            table.sort(files, function(a, b)
+              return a.name < b.name
+            end)
+            vim.list_extend(dirs, files)
+            return dirs
+          end,
+        },
+        mappings = {
+          close = 'q',
+          go_in = 'l',
+          go_in_plus = 'L',
+          go_out = 'h',
+          go_out_plus = 'H',
+          reset = '<BS>',
+          reveal_cwd = '@',
+          show_help = 'g?',
+          synchronize = '=',
+          trim_left = '<',
+          trim_right = '>',
+        },
+        options = {
+          permanent_delete = true,
+          use_as_default_explorer = true,
+        },
+        windows = {
+          preview = true,
+          width_focus = 25,
+          width_preview = 25,
+        },
+      }
+      vim.keymap.set('n', '<leader>e', function()
+        require('mini.files').open()
+      end, { desc = 'Open mini.files' })
+
+      vim.keymap.set('n', '<leader>E', function()
+        require('mini.files').open(vim.api.nvim_buf_get_name(0))
+      end, { desc = 'Open mini.files (current file)' })
+
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
       --  and try some other statusline plugin
