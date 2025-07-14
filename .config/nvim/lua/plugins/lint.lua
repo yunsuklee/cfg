@@ -6,6 +6,10 @@ return {
       local lint = require 'lint'
       lint.linters_by_ft = {
         markdown = { 'markdownlint' },
+        javascript = { 'eslint_d', 'eslint' },
+        typescript = { 'eslint_d', 'eslint' },
+        javascriptreact = { 'eslint_d', 'eslint' },
+        typescriptreact = { 'eslint_d', 'eslint' },
       }
 
       -- To allow other plugins to add linters to require('lint').linters_by_ft,
