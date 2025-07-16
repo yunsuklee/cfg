@@ -12,7 +12,23 @@ return {
         },
       }
 
-      vim.cmd.colorscheme 'tokyonight-night'
+      -- vim.cmd.colorscheme 'tokyonight-night'
+    end,
+  },
+  {
+    'ellisonleao/gruvbox.nvim',
+    priority = 1000,
+    lazy = false,
+    config = function()
+      require('gruvbox').setup {
+        contrast = 'hard', -- can be "hard", "soft" or empty string
+        italic = {
+          comments = false, -- matches your preference
+        },
+        transparent_mode = false,
+      }
+
+      vim.cmd.colorscheme 'gruvbox'
     end,
   },
 }
