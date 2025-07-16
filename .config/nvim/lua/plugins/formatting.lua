@@ -64,6 +64,7 @@ return {
         },
         prettierd = {
           -- prettierd inherits prettier config automatically
+          prepend_args = { '--single-quote', '--trailing-comma', 'es5' },
         },
       },
     },
