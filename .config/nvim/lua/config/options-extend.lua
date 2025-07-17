@@ -27,3 +27,6 @@ vim.g.loaded_rrhelper = 1 -- Helper for remote plugins
 -- Disable other built-in plugins
 vim.g.loaded_spellfile_plugin = 1 -- Spell file management
 vim.g.loaded_tutor_mode_plugin = 1 -- Vim tutor (:Tutor command)
+
+-- Optimize ShaDa for faster startup
+vim.o.shada = "'5,<10,s1"
