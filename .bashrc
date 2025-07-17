@@ -107,7 +107,6 @@ alias vim='nvim'
 alias vi='nvim'
 alias svi='sudo nvim'
 alias vis='nvim "+set si"'
-alias lv='NVIM_APPNAME=nvim-lazyvim nvim'
 
 #######################################################
 # NAVIGATION ALIASES

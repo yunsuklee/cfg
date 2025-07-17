@@ -11,6 +11,6 @@ return {
     easing_function = nil, -- Default easing function (can be 'linear', 'quadratic', 'cubic', 'quartic', 'quintic', 'circular', 'sine')
     performance_mode = false, -- Disable "Performance Mode" on all buffers
     -- Optional: customize scroll duration (in milliseconds)
-    -- scroll_duration = 150,
+    scroll_duration = 150,
   },
 }
