@@ -20,7 +20,7 @@ return {
     lazy = false,
     config = function()
       require('gruvbox').setup {
-        contrast = 'hard', -- can be "hard", "soft" or empty string
+        -- contrast = 'hard', -- can be "hard", "soft" or empty string
         italic = {
           comments = false,
         },
