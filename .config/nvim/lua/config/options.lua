@@ -16,22 +16,7 @@ vim.o.mouse = 'a'
 vim.o.showmode = false
 
 -- Sync clipboard between OS and Neovim.
---  Schedule the setting after `UiEnter` because it can increase startup-time.
---  Remove this option if you want your OS clipboard to remain independent.
---  See `:help 'clipboard'`
 vim.schedule(function()
-  -- Custom clipboard provider that handles tmux/display issues
-  vim.g.clipboard = {
-    name = 'tmux-clipboard',
-    copy = {
-      ["+"] = {'tmux', 'load-buffer', '-'},
-      ["*"] = {'tmux', 'load-buffer', '-'},
-    },
-    paste = {
-      ["+"] = {'tmux', 'save-buffer', '-'},
-      ["*"] = {'tmux', 'save-buffer', '-'},
-    },
-  }
   vim.o.clipboard = 'unnamedplus'
 end)
 
