@@ -36,3 +36,23 @@ vim.keymap.set('n', '<C-Up>', '<C-w>+', { desc = 'Increase window height' })
 vim.keymap.set('n', '<C-Down>', '<C-w>-', { desc = 'Decrease window height' })
 vim.keymap.set('n', '<C-Left>', '<C-w><', { desc = 'Decrease window width' })
 vim.keymap.set('n', '<C-Right>', '<C-w>>', { desc = 'Increase window width' })
+
+-- Close floating windows (like LSP hover)
+local function close_floating_windows()
+  for _, win in pairs(vim.api.nvim_list_wins()) do
+    local config = vim.api.nvim_win_get_config(win)
+    if config.relative ~= '' then
+      vim.api.nvim_win_close(win, false)
+    end
+  end
+end
+
+vim.keymap.set('n', 'q', function()
+  close_floating_windows()
+end, { desc = 'Close floating windows' })
+
+-- Make Escape also close floating windows in addition to clearing search
+vim.keymap.set('n', '<Esc>', function()
+  close_floating_windows()
+  vim.cmd('nohlsearch')
+end, { desc = 'Clear search and close floating windows' })
