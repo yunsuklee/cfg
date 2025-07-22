@@ -116,11 +116,6 @@ return {
       -- - sr)'  - [S]urround [R]eplace [)] [']
       require('mini.surround').setup()
 
-      require('mini.comment').setup()
-
-      vim.keymap.set('n', 'gco', 'o<Esc>gcc', { desc = 'Add comment below' })
-      vim.keymap.set('n', 'gcO', 'O<Esc>gcc', { desc = 'Add comment above' })
-
       require('mini.files').setup {
         content = {
           filter = function(entry)

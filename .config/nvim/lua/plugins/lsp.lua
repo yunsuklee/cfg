@@ -198,6 +198,29 @@ return {
         },
         -- gopls = {},
         -- pyright = {},
+        omnisharp = {
+          cmd = { 'omnisharp', '--languageserver', '--hostPID', tostring(vim.fn.getpid()) },
+          enable_roslyn_analyzers = true,
+          organize_imports_on_format = true,
+          enable_import_completion = true,
+          settings = {
+            FormattingOptions = {
+              EnableEditorConfigSupport = true,
+              OrganizeImports = true,
+            },
+            MsBuild = {
+              LoadProjectsOnDemand = false,
+            },
+            RoslynExtensionsOptions = {
+              EnableAnalyzersSupport = true,
+              EnableImportCompletion = true,
+              AnalyzeOpenDocumentsOnly = false,
+            },
+            Sdk = {
+              IncludePrereleases = true,
+            },
+          },
+        },
         rust_analyzer = {
           settings = {
             ['rust-analyzer'] = {
@@ -269,6 +292,7 @@ return {
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'omnisharp', -- C# LSP server
         -- 'clang-format',
         -- 'prettier',
         -- 'prettierd',
@@ -277,8 +301,8 @@ return {
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
       require('mason-lspconfig').setup {
-        ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
-        automatic_installation = false,
+        ensure_installed = { 'omnisharp' }, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
+        automatic_installation = true,
         handlers = {
           function(server_name)
             local server = servers[server_name] or {}
