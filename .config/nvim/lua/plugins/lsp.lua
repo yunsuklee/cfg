@@ -199,10 +199,23 @@ return {
         -- gopls = {},
         -- pyright = {},
         omnisharp = {
-          cmd = { 'omnisharp', '--languageserver', '--hostPID', tostring(vim.fn.getpid()) },
+          cmd = { 
+            vim.fn.expand('~/.dotnet/dotnet'),
+            vim.fn.stdpath('data') .. '/mason/packages/omnisharp/OmniSharp.dll',
+            '--languageserver',
+            '--hostPID',
+            tostring(vim.fn.getpid())
+          },
           enable_roslyn_analyzers = true,
           organize_imports_on_format = true,
           enable_import_completion = true,
+          init_options = {},
+          on_new_config = function(new_config, new_root_dir)
+            -- Set DOTNET_ROOT environment variable
+            new_config.cmd_env = vim.tbl_extend('force', new_config.cmd_env or {}, {
+              DOTNET_ROOT = vim.fn.expand('~/.dotnet')
+            })
+          end,
           settings = {
             FormattingOptions = {
               EnableEditorConfigSupport = true,
