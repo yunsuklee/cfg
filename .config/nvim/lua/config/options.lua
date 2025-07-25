@@ -38,6 +38,10 @@ vim.o.updatetime = 250
 
 -- Decrease mapped sequence wait time
 vim.o.timeoutlen = 300
+vim.o.ttimeoutlen = 5
+
+-- Fix escape sequence delays
+vim.o.ttyfast = true
 
 -- Configure how new splits should be opened
 vim.o.splitright = true
