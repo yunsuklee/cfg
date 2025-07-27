@@ -189,7 +189,7 @@ return {
       -- cursor location to LINE:COLUMN
       ---@diagnostic disable-next-line: duplicate-set-field
       statusline.section_location = function()
-        return '%2l:%-2v'
+        return '%2l/%L%m'
       end
 
       -- ... and there is more!
