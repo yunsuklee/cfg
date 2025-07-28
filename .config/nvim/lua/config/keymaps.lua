@@ -8,6 +8,23 @@
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
+-- Toggle diagnostic virtual text
+vim.keymap.set('n', '<leader>td', function()
+  local current_config = vim.diagnostic.config()
+  if current_config.virtual_text then
+    vim.diagnostic.config({ virtual_text = false })
+    print('Diagnostic virtual text disabled')
+  else
+    vim.diagnostic.config({ 
+      virtual_text = {
+        source = 'if_many',
+        spacing = 2,
+      }
+    })
+    print('Diagnostic virtual text enabled')
+  end
+end, { desc = '[T]oggle [D]iagnostic virtual text' })
+
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
 --
