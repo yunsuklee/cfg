@@ -12,16 +12,16 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 vim.keymap.set('n', '<leader>td', function()
   local current_config = vim.diagnostic.config()
   if current_config.virtual_text then
-    vim.diagnostic.config({ virtual_text = false })
-    print('Diagnostic virtual text disabled')
+    vim.diagnostic.config { virtual_text = false }
+    print 'Diagnostic virtual text disabled'
   else
-    vim.diagnostic.config({ 
+    vim.diagnostic.config {
       virtual_text = {
         source = 'if_many',
         spacing = 2,
-      }
-    })
-    print('Diagnostic virtual text enabled')
+      },
+    }
+    print 'Diagnostic virtual text enabled'
   end
 end, { desc = '[T]oggle [D]iagnostic virtual text' })
 
@@ -33,12 +33,6 @@ vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left wind
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
-
--- NOTE: Some terminals have colliding keymaps or are not able to send distinct keycodes
--- vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
--- vim.keymap.set("n", "<C-S-l>", "<C-w>L", { desc = "Move window to the right" })
--- vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
--- vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
 
 -- Resize splits with arrow keys
 vim.keymap.set('n', '<C-Up>', '<C-w>+', { desc = 'Increase window height' })
@@ -56,12 +50,15 @@ local function close_floating_windows()
   end
 end
 
-vim.keymap.set('n', 'q', function()
-  close_floating_windows()
-end, { desc = 'Close floating windows' })
-
 -- Make Escape also close floating windows in addition to clearing search
 vim.keymap.set('n', '<Esc>', function()
   close_floating_windows()
   vim.cmd 'nohlsearch'
 end, { desc = 'Clear search and close floating windows' })
+
+-- Better indenting - keeps selection after indenting
+vim.keymap.set('v', '<', '<gv', { desc = 'Indent left and keep selection' })
+vim.keymap.set('v', '>', '>gv', { desc = 'Indent right and keep selection' })
+
+-- Paste without overwriting yank register
+vim.keymap.set('v', 'p', '"_dP', { desc = 'Paste without overwriting register' })
