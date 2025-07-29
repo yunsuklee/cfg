@@ -184,11 +184,25 @@ return {
       -- cursor location to LINE:COLUMN
       ---@diagnostic disable-next-line: duplicate-set-field
       statusline.section_location = function()
-        return '%2l/%L%m'
+        return '%2l:%L'
       end
 
-      -- ... and there is more!
-      --  Check out: https://github.com/echasnovski/mini.nvim
+      -- Remove filename from statusline for all windows
+      ---@diagnostic disable-next-line: duplicate-set-field
+      statusline.section_filename = function()
+        return ''
+      end
+
+      -- Make inactive statuslines completely empty
+      statusline.config.content = {
+        active = statusline.config.content.active,
+        inactive = function()
+          return ''
+        end,
+      }
+
+      -- Set up winbar (topbar) to show filename with unsaved changes indicator
+      vim.o.winbar = '%f%m'
     end,
   },
 
@@ -224,6 +238,34 @@ return {
           require('ufo').closeAllFolds()
         end,
         desc = 'Close all folds',
+      },
+      {
+        'z1',
+        function()
+          require('ufo').closeFoldsWith(1)
+        end,
+        desc = 'Close folds level 1',
+      },
+      {
+        'z2',
+        function()
+          require('ufo').closeFoldsWith(2)
+        end,
+        desc = 'Close folds level 2',
+      },
+      {
+        'z3',
+        function()
+          require('ufo').closeFoldsWith(3)
+        end,
+        desc = 'Close folds level 3',
+      },
+      {
+        'z4',
+        function()
+          require('ufo').closeFoldsWith(4)
+        end,
+        desc = 'Close folds level 4',
       },
     },
     opts = {
