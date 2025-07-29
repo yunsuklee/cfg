@@ -62,3 +62,17 @@ vim.keymap.set('v', '>', '>gv', { desc = 'Indent right and keep selection' })
 
 -- Paste without overwriting yank register
 vim.keymap.set('v', 'p', '"_dP', { desc = 'Paste without overwriting register' })
+
+-- Prevent c and d from copying to clipboard (use black hole register)
+vim.keymap.set('n', 'c', '"_c', { desc = 'Change without copying to clipboard' })
+vim.keymap.set('n', 'C', '"_C', { desc = 'Change to end of line without copying' })
+vim.keymap.set('n', 'd', '"_d', { desc = 'Delete without copying to clipboard' })
+vim.keymap.set('n', 'D', '"_D', { desc = 'Delete to end of line without copying' })
+vim.keymap.set('v', 'c', '"_c', { desc = 'Change without copying to clipboard' })
+vim.keymap.set('v', 'd', '"_d', { desc = 'Delete without copying to clipboard' })
+vim.keymap.set('n', 'dd', '"_dd', { desc = 'Delete line without copying to clipboard' })
+vim.keymap.set('n', 'x', '"_x', { desc = 'Delete character without copying to clipboard' })
+
+-- Cut to clipboard with capital X
+vim.keymap.set('v', 'X', 'd', { desc = 'Cut selection to clipboard' })
+vim.keymap.set('n', 'X', 'dd', { desc = 'Cut line to clipboard' })
