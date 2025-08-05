@@ -247,6 +247,15 @@ return {
               enableInlayHintsForLambdaParameterTypes = true,
               enableInlayHintsForImplicitObjectCreation = true,
             },
+            ImplementTypeOptions = {
+              InsertionBehavior = 'WithOtherMembersOfTheSameKind',
+              PropertyGenerationBehavior = 'PreferThrowingProperties',
+            },
+            ReferencesCodeLens = {
+              Enabled = true,
+            },
+            EnableMsBuildLoadProjectsOnDemand = false,
+            AnalyzeOpenDocumentsOnly = false,
           },
         },
         rust_analyzer = {
