@@ -54,6 +54,8 @@ return {
         scss = { 'prettierd', 'prettier', stop_after_first = true },
         markdown = { 'prettierd', 'prettier', stop_after_first = true },
         yaml = { 'prettierd', 'prettier', stop_after_first = true },
+        -- C# formatting
+        cs = { 'csharpier' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
       },

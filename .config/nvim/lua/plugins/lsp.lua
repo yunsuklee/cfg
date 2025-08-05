@@ -199,21 +199,20 @@ return {
         -- gopls = {},
         -- pyright = {},
         omnisharp = {
-          cmd = { 
-            vim.fn.expand('~/.dotnet/dotnet'),
-            vim.fn.stdpath('data') .. '/mason/packages/omnisharp/OmniSharp.dll',
+          cmd = {
+            vim.fn.expand '~/.dotnet/dotnet',
+            vim.fn.stdpath 'data' .. '/mason/packages/omnisharp/OmniSharp.dll',
             '--languageserver',
             '--hostPID',
-            tostring(vim.fn.getpid())
+            tostring(vim.fn.getpid()),
           },
           enable_roslyn_analyzers = true,
           organize_imports_on_format = true,
           enable_import_completion = true,
           init_options = {},
           on_new_config = function(new_config, new_root_dir)
-            -- Set DOTNET_ROOT environment variable
             new_config.cmd_env = vim.tbl_extend('force', new_config.cmd_env or {}, {
-              DOTNET_ROOT = vim.fn.expand('~/.dotnet')
+              DOTNET_ROOT = vim.fn.expand '~/.dotnet',
             })
           end,
           settings = {
@@ -228,9 +227,25 @@ return {
               EnableAnalyzersSupport = true,
               EnableImportCompletion = true,
               AnalyzeOpenDocumentsOnly = false,
+              LocationPaths = { 'Analyzers' },
+              EnableDecompilationSupport = true,
             },
             Sdk = {
               IncludePrereleases = true,
+            },
+            inlayHints = {
+              enableInlayHintsForParameters = true,
+              enableInlayHintsForLiteralParameters = true,
+              enableInlayHintsForObjectCreationParameters = true,
+              enableInlayHintsForIndexerParameters = true,
+              enableInlayHintsForOtherParameters = true,
+              suppressInlayHintsForParametersThatDifferOnlyBySuffix = false,
+              suppressInlayHintsForParametersThatMatchMethodIntent = false,
+              suppressInlayHintsForParametersThatMatchArgumentName = false,
+              enableInlayHintsForTypes = true,
+              enableInlayHintsForImplicitVariableTypes = true,
+              enableInlayHintsForLambdaParameterTypes = true,
+              enableInlayHintsForImplicitObjectCreation = true,
             },
           },
         },
@@ -287,6 +302,7 @@ return {
             },
           },
         },
+        yamlls = {},
       }
 
       -- Ensure the servers and tools above are installed
@@ -306,6 +322,7 @@ return {
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
         'omnisharp', -- C# LSP server
+        'csharpier', -- C# formatter
         -- 'clang-format',
         -- 'prettier',
         -- 'prettierd',
