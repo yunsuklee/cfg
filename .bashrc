@@ -204,7 +204,7 @@ ftext() {
         echo "Usage: ftext <search_term>"
         return 1
     fi
-    grep -iIHrn --color=always "$1" . | less -r
+    grep -iIHrn --color=always "$1" .
 }
 
 # Get last 2 directories from current path
@@ -239,6 +239,16 @@ extract() {
     done
 }
 
+clip() {
+    if command -v wl-copy &> /dev/null; then
+        wl-copy
+    elif command -v xclip &> /dev/null; then
+        xclip -selection clipboard
+    else
+        echo "Neither wl-copy nor xclip found" >&2
+        return 1
+    fi
+}
 #######################################################
 # AUTO-START X SESSION
 #######################################################
