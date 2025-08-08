@@ -2,10 +2,10 @@
 -- this module will be loaded after everything else when the application starts
 -- it will be automatically reloaded when saved
 
-local core = require "core"
-local keymap = require "core.keymap"
-local config = require "core.config"
-local style = require "core.style"
+local core = require("core")
+local keymap = require("core.keymap")
+local config = require("core.config")
+local style = require("core.style")
 
 ------------------------------ Themes ----------------------------------------
 
@@ -78,6 +78,23 @@ local style = require "core.style"
 config.keep_newline_whitespace = true
 
 -- Don't confirm on exit
-local keymap = require "core.keymap"
+local keymap = require("core.keymap")
 keymap.add({ ["ctrl+q"] = "core:quit-no-confirm" }, true)
 
+----------------------- Essential Plugins Configuration --------------------
+
+-- Load essential plugins (they auto-load from plugins/ directory)
+-- Configure plugin settings
+
+-- IndentGuide configuration
+config.indent_guide = true
+config.indent_guide_width = 1
+
+-- ColorPreview configuration
+config.colorpreview_enabled = true
+
+-- SelectionHighlight configuration
+config.selectionhighlight_enabled = true
+
+-- RainbowParen configuration
+config.rainbowparen_enabled = true
