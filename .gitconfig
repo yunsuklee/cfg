@@ -3,8 +3,8 @@
 	co = checkout
 	cb = checkout -b
 	cop = "!f() { git checkout \"$1\" && git pull; }; f"
-	sw = switch
 	cp = cherry-pick
+	sw = switch
 	br = branch
 	db = branch -d
 	ci = commit
