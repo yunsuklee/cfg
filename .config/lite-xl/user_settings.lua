@@ -10,7 +10,12 @@ return {
     ["plugins"] = {
       ["treeview"] = {
         ["visible"] = true
+      },
+      ["trimwhitespace"] = {
+        ["enabled"] = true,
+        ["trim_empty_end_lines"] = true
       }
-    }
+    },
+    ["theme"] = "gruvbox_dark"
   }
 }
