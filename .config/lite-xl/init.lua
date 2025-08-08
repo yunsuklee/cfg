@@ -72,3 +72,12 @@ local style = require "core.style"
 --   "^desktop%.ini$", "^%.DS_Store$", "^%.directory$",
 -- }
 
+---------------------- Notepad++ Like Behavior -------------------------------
+
+-- Enable session restore and unsaved tab persistence
+config.keep_newline_whitespace = true
+
+-- Don't confirm on exit
+local keymap = require "core.keymap"
+keymap.add({ ["ctrl+q"] = "core:quit-no-confirm" }, true)
+
