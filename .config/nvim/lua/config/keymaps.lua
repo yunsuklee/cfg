@@ -76,3 +76,10 @@ vim.keymap.set('n', 'x', '"_x', { desc = 'Delete character without copying to cl
 -- Cut to clipboard with capital X
 vim.keymap.set('v', 'X', 'd', { desc = 'Cut selection to clipboard' })
 vim.keymap.set('n', 'X', 'dd', { desc = 'Cut line to clipboard' })
+
+-- Terminal mode keymaps
+vim.keymap.set('t', '<C-n>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+vim.keymap.set('t', '<C-h>', '<C-\\><C-n><C-w>h', { desc = 'Move to left window from terminal' })
+vim.keymap.set('t', '<C-j>', '<C-\\><C-n><C-w>j', { desc = 'Move to lower window from terminal' })
+vim.keymap.set('t', '<C-k>', '<C-\\><C-n><C-w>k', { desc = 'Move to upper window from terminal' })
+vim.keymap.set('t', '<C-l>', '<C-\\><C-n><C-w>l', { desc = 'Move to right window from terminal' })
