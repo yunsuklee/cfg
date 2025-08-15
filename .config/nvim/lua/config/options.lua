@@ -134,8 +134,7 @@ vim.o.updatetime = 250
 vim.o.timeoutlen = 300
 vim.o.ttimeoutlen = 5
 
--- Fix escape sequence delays
-vim.o.ttyfast = true
+-- Fix escape sequence delays (ttyfast is deprecated and no longer needed)
 
 -- Configure how new splits should be opened
 vim.o.splitright = true
