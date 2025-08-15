@@ -239,13 +239,24 @@ extract() {
     done
 }
 
+# Detailed ls
+lsc() {
+    eza -la --color=auto --group-directories-first --git --icons --bytes --time-style=long-iso "$@"
+    echo
+    file_count=$(find . -maxdepth 1 -type f | wc -l)
+    dir_count=$(find . -maxdepth 1 -type d ! -name '.' | wc -l)
+    total_size=$(du -sh . 2>/dev/null | cut -f1)
+    echo "Files: $file_count  Dirs: $dir_count  Size: $total_size"
+}
+
+# Get current clipboard
 clip() {
-    if command -v wl-copy &> /dev/null; then
+    if [ -n "$WAYLAND_DISPLAY" ] && command -v wl-copy &> /dev/null; then
         wl-copy
     elif command -v xclip &> /dev/null; then
         xclip -selection clipboard
     else
-        echo "Neither wl-copy nor xclip found" >&2
+        echo "No working clipboard utility found" >&2
         return 1
     fi
 }
@@ -288,7 +299,6 @@ export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quo
 # Enable color support for more commands if dircolors is available
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    # Your existing aliases already cover ls and grep
 fi
 
 # Alert alias for long running commands - cross-platform notification
