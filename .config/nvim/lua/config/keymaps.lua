@@ -5,8 +5,41 @@
 --  See `:help hlsearch`
 -- vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>') -- Commented out due to duplicate mapping below
 
--- Diagnostic keymaps
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+-- Quickfix/Location list keymaps
+vim.keymap.set('n', '<leader>ql', function()
+  local loc_exists = false
+  for _, win in pairs(vim.api.nvim_list_wins()) do
+    local buf = vim.api.nvim_win_get_buf(win)
+    if vim.api.nvim_buf_get_option(buf, 'buftype') == 'quickfix' and vim.fn.getloclist(0, {winid = 0}).winid ~= 0 then
+      vim.api.nvim_set_current_win(win)
+      loc_exists = true
+      break
+    end
+  end
+  if not loc_exists then
+    vim.diagnostic.setloclist()
+  end
+end, { desc = 'Open/focus [L]ocal quickfix list' })
+
+vim.keymap.set('n', '<leader>qg', function()
+  local qf_exists = false
+  for _, win in pairs(vim.api.nvim_list_wins()) do
+    local buf = vim.api.nvim_win_get_buf(win)
+    if vim.api.nvim_buf_get_option(buf, 'buftype') == 'quickfix' and vim.fn.getloclist(0, {winid = 0}).winid == 0 then
+      vim.api.nvim_set_current_win(win)
+      qf_exists = true
+      break
+    end
+  end
+  if not qf_exists then
+    vim.diagnostic.setqflist()
+  end
+end, { desc = 'Open/focus [G]lobal diagnostic quickfix list' })
+
+vim.keymap.set('n', '<leader>qc', function()
+  vim.cmd('cclose')
+  vim.cmd('lclose')
+end, { desc = '[C]lose quickfix/location list' })
 
 -- Toggle diagnostic virtual text
 vim.keymap.set('n', '<leader>td', function()
