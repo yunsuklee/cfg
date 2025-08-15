@@ -15,9 +15,38 @@ vim.o.mouse = 'a'
 -- Don't show the mode, since it's already in the status line
 vim.o.showmode = false
 
--- Sync clipboard between OS and Neovim.
+-- Sync clipboard between OS and Neovim with X11/Wayland compatibility
 vim.schedule(function()
   vim.o.clipboard = 'unnamedplus'
+  
+  -- Auto-detect display server and configure clipboard accordingly
+  if os.getenv("WAYLAND_DISPLAY") then
+    vim.g.clipboard = {
+      name = 'wl-clipboard',
+      copy = {
+        ['+'] = 'wl-copy',
+        ['*'] = 'wl-copy',
+      },
+      paste = {
+        ['+'] = 'wl-paste --no-newline',
+        ['*'] = 'wl-paste --no-newline',
+      },
+      cache_enabled = 0,
+    }
+  elseif os.getenv("DISPLAY") then
+    vim.g.clipboard = {
+      name = 'xclip',
+      copy = {
+        ['+'] = 'xclip -selection clipboard',
+        ['*'] = 'xclip -selection primary',
+      },
+      paste = {
+        ['+'] = 'xclip -selection clipboard -o',
+        ['*'] = 'xclip -selection primary -o',
+      },
+      cache_enabled = 0,
+    }
+  end
 end)
 
 -- Configure clipboard based on environment
