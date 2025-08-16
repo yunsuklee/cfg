@@ -76,6 +76,30 @@ return {
       end,
       desc = 'Debug: See last session result.',
     },
+    {
+      '<leader>dw',
+      function()
+        local expr = vim.fn.input('Watch expression: ')
+        if expr ~= '' then
+          require('dapui').elements.watches.add(expr)
+        end
+      end,
+      desc = 'Debug: Add to watches',
+    },
+    {
+      '<leader>de',
+      function()
+        require('dapui').eval(nil, { enter = true })
+      end,
+      desc = 'Debug: Evaluate expression',
+    },
+    {
+      '<leader>dh',
+      function()
+        require('dap.ui.widgets').hover()
+      end,
+      desc = 'Debug: Hover variable',
+    },
   },
   config = function()
     local dap = require 'dap'
@@ -119,6 +143,26 @@ return {
           run_last = '▶▶',
           terminate = '⏹',
           disconnect = '⏏',
+        },
+      },
+      layouts = {
+        {
+          elements = {
+            { id = 'scopes', size = 0.25 },
+            { id = 'breakpoints', size = 0.25 },
+            { id = 'stacks', size = 0.25 },
+            { id = 'watches', size = 0.25 },
+          },
+          size = 40,
+          position = 'left',
+        },
+        {
+          elements = {
+            'repl',
+            'console',
+          },
+          size = 0.25,
+          position = 'bottom',
         },
       },
     }
