@@ -96,6 +96,8 @@ return {
         -- Update this to ensure that you have the debuggers for the langs you want
         'delve',
         'netcoredbg',
+        'codelldb', -- C/C++/Rust debugger
+        'cpptools', -- C/C++ debugger (alternative)
       },
     }
 
@@ -171,6 +173,59 @@ return {
         request = 'attach',
         processId = require('dap.utils').pick_process,
         cwd = '${workspaceFolder}',
+      },
+    }
+
+    -- Configure C/C++ debugging with codelldb
+    dap.adapters.codelldb = {
+      type = 'server',
+      port = '${port}',
+      executable = {
+        command = vim.fn.stdpath 'data' .. '/mason/bin/codelldb',
+        args = { '--port', '${port}' },
+      },
+    }
+
+    dap.configurations.c = {
+      {
+        name = 'Launch file',
+        type = 'codelldb',
+        request = 'launch',
+        program = function()
+          return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+        end,
+        cwd = '${workspaceFolder}',
+        stopOnEntry = false,
+      },
+    }
+
+    dap.configurations.cpp = dap.configurations.c
+
+    -- Configure Rust debugging with codelldb
+    dap.configurations.rust = {
+      {
+        name = 'Launch file',
+        type = 'codelldb',
+        request = 'launch',
+        program = function()
+          return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/target/debug/', 'file')
+        end,
+        cwd = '${workspaceFolder}',
+        stopOnEntry = false,
+      },
+      {
+        name = 'Launch current package',
+        type = 'codelldb',
+        request = 'launch',
+        program = function()
+          local handle = io.popen('cargo metadata --no-deps --format-version 1 | jq -r ".packages[0].name"')
+          local package_name = handle:read('*a'):gsub('\n', '')
+          handle:close()
+          return vim.fn.getcwd() .. '/target/debug/' .. package_name
+        end,
+        cwd = '${workspaceFolder}',
+        stopOnEntry = false,
+        preLaunchTask = 'cargo build',
       },
     }
   end,

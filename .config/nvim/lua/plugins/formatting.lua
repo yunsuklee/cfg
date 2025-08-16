@@ -56,6 +56,8 @@ return {
         yaml = { 'prettierd', 'prettier', stop_after_first = true },
         -- C# formatting
         cs = { 'csharpier' },
+        -- Zig formatting
+        zig = { 'zigfmt' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
       },

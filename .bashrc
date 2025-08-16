@@ -63,6 +63,7 @@ fi
 export STARSHIP_CONFIG=~/.config/starship/starship.toml
 export EDITOR=nvim
 export VISUAL=nvim
+export PATH=$PATH:~/opt/zig
 
 # MODERN TOOL REPLACEMENTS
 #######################################################
@@ -251,15 +252,50 @@ lsc() {
 
 # Get current clipboard
 clip() {
-    if [ -n "$WAYLAND_DISPLAY" ] && command -v wl-copy &> /dev/null; then
-        wl-copy
+    if [ -n "$WAYLAND_DISPLAY" ] && command -v wl-paste &> /dev/null; then
+        wl-paste
     elif command -v xclip &> /dev/null; then
-        xclip -selection clipboard
+        xclip -selection clipboard -o
     else
         echo "No working clipboard utility found" >&2
         return 1
     fi
 }
+
+gcce() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: gcce <main.c|main.o> [additional files...] [flags...]"
+        echo "Example: gcce main.c utils.c math.h -lm -pthread"
+        echo "Example: gcce main.o utils.o -lm -pthread"
+        return 1
+    fi
+
+    local first_file="$1"
+    local output
+
+    # Remove both .c and .o extensions for output name
+    if [[ "$first_file" == *.c ]]; then
+        output="${first_file%.c}"
+    elif [[ "$first_file" == *.o ]]; then
+        output="${first_file%.o}"
+    else
+        output="$first_file"  # fallback for other extensions
+    fi
+
+    gcc -Wall -Werror -pedantic -std=c17 -g "$@" -lsyleec -o "$output"
+}
+
+gcco() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: gcco <main.c> [additional files...] [flags...]"
+        echo "Example: gcco main.c utils.c math.h -lm -pthread"
+        return 1
+    fi
+    local first_file="$1"
+    local output="${first_file%.c}.o"
+    gcc -Wall -Werror -pedantic -std=c17 -g -c "$@" -lsyleec -o "$output"
+}
+
 #######################################################
 # AUTO-START X SESSION
 #######################################################
@@ -306,13 +342,13 @@ fi
 # Works with both native Linux notifications and WSL (if Windows notifications are set up)
 if command -v notify-send &> /dev/null; then
     # Native Linux (Pop!_OS, Ubuntu desktop)
-    alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+    alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '"'"'s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'"'"')"'
 elif [[ -n "${WSL_DISTRO_NAME:-}" ]] && command -v powershell.exe &> /dev/null; then
     # WSL with Windows PowerShell available
-    alias alert='powershell.exe -Command "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show(\"Command finished: $(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')\", \"Terminal Alert\")"'
+    alias alert='powershell.exe -Command "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show(\"Command finished: $(history|tail -n1|sed -e '"'"'s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'"'"')\", \"Terminal Alert\")"'
 else
     # Fallback: just echo (works everywhere)
-    alias alert='echo "Alert: $(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'') - Command finished"'
+    alias alert='echo "Alert: $(history|tail -n1|sed -e '"'"'s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'"'"') - Command finished"'
 fi
 
 # Set terminal title to show current directory (works in most terminals including WSL)

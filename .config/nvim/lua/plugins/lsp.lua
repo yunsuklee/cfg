@@ -312,6 +312,19 @@ return {
           },
         },
         yamlls = {},
+        zls = {
+          cmd = { 'zls' },
+          settings = {
+            zls = {
+              zig_exe_path = '/opt/zig',
+              enable_inlay_hints = true,
+              enable_snippets = true,
+              warn_style = true,
+              enable_semantic_tokens = true,
+              enable_ast_check_diagnostics = true,
+            },
+          },
+        },
       }
 
       -- Ensure the servers and tools above are installed
