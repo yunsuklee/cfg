@@ -262,7 +262,56 @@ clip() {
     fi
 }
 
-gcce() {
+gcpp() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: gccpp <main.cpp|main.o> [additional files...] [flags...]"
+        echo "Example: gccpp main.cpp utils.cpp math.hpp -lm -pthread"
+        echo "Example: gccpp main.o utils.o -lm -pthread"
+        return 1
+    fi
+    local first_file="$1"
+    local output
+    # Remove both .cpp and .o extensions for output name
+    if [[ "$first_file" == *.cpp ]]; then
+        output="${first_file%.cpp}"
+    elif [[ "$first_file" == *.cxx ]]; then
+        output="${first_file%.cxx}"
+    elif [[ "$first_file" == *.cc ]]; then
+        output="${first_file%.cc}"
+    elif [[ "$first_file" == *.C ]]; then
+        output="${first_file%.C}"
+    elif [[ "$first_file" == *.o ]]; then
+        output="${first_file%.o}"
+    else
+        output="$first_file"  # fallback for other extensions
+    fi
+    g++ -Wall -Wextra -Wshadow -Werror -pedantic -std=c++20 -g "$@" -lsyleec -o "$output"
+}
+
+gcppo() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: gcppo <main.cpp> [additional files...] [flags...]"
+        echo "Example: gcppo main.cpp utils.cpp math.hpp -lm -pthread"
+        return 1
+    fi
+    local first_file="$1"
+    local output
+    # Handle different C++ extensions for object file output
+    if [[ "$first_file" == *.cpp ]]; then
+        output="${first_file%.cpp}.o"
+    elif [[ "$first_file" == *.cxx ]]; then
+        output="${first_file%.cxx}.o"
+    elif [[ "$first_file" == *.cc ]]; then
+        output="${first_file%.cc}.o"
+    elif [[ "$first_file" == *.C ]]; then
+        output="${first_file%.C}.o"
+    else
+        output="${first_file}.o"  # fallback
+    fi
+    g++ -Wall -Wextra -Wshadow -Werror -pedantic -std=c++20 -g -c "$@" -lsyleec -o "$output"
+}
+
+gc() {
     if [ $# -eq 0 ]; then
         echo "Usage: gcce <main.c|main.o> [additional files...] [flags...]"
         echo "Example: gcce main.c utils.c math.h -lm -pthread"
@@ -282,10 +331,10 @@ gcce() {
         output="$first_file"  # fallback for other extensions
     fi
 
-    gcc -Wall -Werror -pedantic -std=c17 -g "$@" -lsyleec -o "$output"
+    gcc -Wall -Wextra -Wshadow -Werror -pedantic -std=c17 -g "$@" -lsyleec -o "$output"
 }
 
-gcco() {
+gco() {
     if [ $# -eq 0 ]; then
         echo "Usage: gcco <main.c> [additional files...] [flags...]"
         echo "Example: gcco main.c utils.c math.h -lm -pthread"
@@ -293,7 +342,7 @@ gcco() {
     fi
     local first_file="$1"
     local output="${first_file%.c}.o"
-    gcc -Wall -Werror -pedantic -std=c17 -g -c "$@" -lsyleec -o "$output"
+    gcc -Wall -Wextra -Wshadow -Werror -pedantic -std=c17 -g -c "$@" -lsyleec -o "$output"
 }
 
 #######################################################
