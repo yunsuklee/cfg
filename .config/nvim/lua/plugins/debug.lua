@@ -117,8 +117,15 @@ return {
       '<leader>da',
       function()
         local dap = require 'dap'
-        if not dap.session() then
+        local session = dap.session()
+        if not session then
           print 'No active debug session'
+          return
+        end
+        
+        -- Check if we're stopped (needed for LLDB disassembly)
+        if not session.stopped_thread_id then
+          print 'Process must be stopped (hit breakpoint/step) to show disassembly'
           return
         end
 
@@ -162,7 +169,11 @@ return {
         -- Get disassembly using evaluate request
         local session = dap.session()
         if session then
-          session:evaluate('-exec disas', function(err, response)
+          -- Get disassembly using GDB command (works with cpptools)
+          local disas_command = '-exec disas'
+          
+          -- Use evaluate for disassembly (works with cpptools/GDB)
+          session:evaluate(disas_command, function(err, response)
             if err then
               vim.api.nvim_buf_set_lines(buf, 0, -1, false, { 'Error getting disassembly: ' .. tostring(err) })
             elseif response and response.result then
@@ -283,8 +294,11 @@ return {
       if disasm_buf and vim.api.nvim_buf_is_loaded(disasm_buf) then
         local session = dap.session()
         if session then
-          -- Get current instruction pointer and disassembly
-          session:evaluate('-exec disas', function(err, response)
+          -- Get current instruction pointer and disassembly using GDB
+          local disas_command = '-exec disas'
+          
+          -- Update disassembly (works with cpptools/GDB)
+          session:evaluate(disas_command, function(err, response)
             if response and response.result then
               local lines = vim.split(response.result, '\n')
               vim.api.nvim_buf_set_option(disasm_buf, 'modifiable', true)
@@ -396,10 +410,27 @@ return {
 
     dap.configurations.cpp = dap.configurations.c
 
-    -- Configure Rust debugging with codelldb
+    -- Configure Rust debugging with both options
     dap.configurations.rust = {
       {
-        name = 'Launch file',
+        name = 'Launch with cpptools (GDB)',
+        type = 'cppdbg',
+        request = 'launch',
+        program = function()
+          return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/target/debug/', 'file')
+        end,
+        cwd = '${workspaceFolder}',
+        stopAtEntry = false,
+        setupCommands = {
+          {
+            text = '-enable-pretty-printing',
+            description = 'enable pretty printing',
+            ignoreFailures = false,
+          },
+        },
+      },
+      {
+        name = 'Launch with codelldb (LLDB)',
         type = 'codelldb',
         request = 'launch',
         program = function()
@@ -408,20 +439,7 @@ return {
         cwd = '${workspaceFolder}',
         stopOnEntry = false,
       },
-      {
-        name = 'Launch current package',
-        type = 'codelldb',
-        request = 'launch',
-        program = function()
-          local handle = io.popen 'cargo metadata --no-deps --format-version 1 | jq -r ".packages[0].name"'
-          local package_name = handle:read('*a'):gsub('\n', '')
-          handle:close()
-          return vim.fn.getcwd() .. '/target/debug/' .. package_name
-        end,
-        cwd = '${workspaceFolder}',
-        stopOnEntry = false,
-        preLaunchTask = 'cargo build',
-      },
     }
+
   end,
 }
