@@ -76,7 +76,35 @@ return {
       desc = 'Debug: Step Into',
     },
     {
-      '<F3>',
+      '<F1>',
+      function()
+        local dap = require('dap')
+        local session = dap.session()
+        if session then
+          session:evaluate('-exec target record-full', function(err, response)
+            if err then
+              print('Failed to enable record mode: ' .. tostring(err))
+            else
+              print('Record mode enabled - you can now use reverse debugging')
+            end
+          end)
+        end
+      end,
+      desc = 'Debug: Enable Record Mode',
+    },
+    {
+      '<F2>',
+      function()
+        local dap = require('dap')
+        local session = dap.session()
+        if session then
+          session:evaluate('-exec reverse-next', function() end)
+        end
+      end,
+      desc = 'Debug: Step Back',
+    },
+    {
+      '<F12>',
       function()
         require('dap').step_out()
       end,
