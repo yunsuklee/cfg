@@ -189,6 +189,7 @@ return {
             '--completion-style=detailed',
             '--function-arg-placeholders',
             '--fallback-style=llvm',
+            '--query-driver=/usr/bin/g++,/usr/bin/clang++',
           },
           init_options = {
             usePlaceholders = true,
@@ -343,6 +344,7 @@ return {
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'clangd', -- C++ LSP server
         -- 'omnisharp', -- C# LSP server
         -- 'csharpier', -- C# formatter
         -- 'clang-format',
@@ -353,7 +355,7 @@ return {
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
       require('mason-lspconfig').setup {
-        ensure_installed = { 'omnisharp' }, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
+        ensure_installed = { 'clangd', 'omnisharp' }, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
         automatic_installation = true,
         handlers = {
           function(server_name)
@@ -363,6 +365,11 @@ return {
             -- certain features of an LSP (for example, turning off formatting for ts_ls)
             server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
             require('lspconfig')[server_name].setup(server)
+          end,
+          ['clangd'] = function()
+            local server = servers.clangd or {}
+            server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
+            require('lspconfig').clangd.setup(server)
           end,
         },
       }

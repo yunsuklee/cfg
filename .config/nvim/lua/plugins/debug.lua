@@ -79,7 +79,7 @@ return {
     {
       '<leader>dw',
       function()
-        local expr = vim.fn.input('Watch expression: ')
+        local expr = vim.fn.input 'Watch expression: '
         if expr ~= '' then
           require('dapui').elements.watches.add(expr)
         end
@@ -153,7 +153,7 @@ return {
             { id = 'stacks', size = 0.25 },
             { id = 'watches', size = 0.25 },
           },
-          size = 40,
+          size = 80,
           position = 'left',
         },
         {
@@ -262,7 +262,7 @@ return {
         type = 'codelldb',
         request = 'launch',
         program = function()
-          local handle = io.popen('cargo metadata --no-deps --format-version 1 | jq -r ".packages[0].name"')
+          local handle = io.popen 'cargo metadata --no-deps --format-version 1 | jq -r ".packages[0].name"'
           local package_name = handle:read('*a'):gsub('\n', '')
           handle:close()
           return vim.fn.getcwd() .. '/target/debug/' .. package_name
