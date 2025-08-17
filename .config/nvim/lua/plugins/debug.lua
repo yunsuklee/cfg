@@ -25,7 +25,7 @@ return {
     'leoluz/nvim-dap-go',
   },
   keys = {
-    -- Basic debugging keymaps, feel free to change to your liking!
+    -- Visual Studio style debugging keymaps
     {
       '<F5>',
       function()
@@ -34,18 +34,46 @@ return {
       desc = 'Debug: Start/Continue',
     },
     {
-      '<F1>',
+      '<F6>',
       function()
-        require('dap').step_into()
+        require('dap').terminate()
       end,
-      desc = 'Debug: Step Into',
+      desc = 'Debug: Stop',
     },
     {
-      '<F2>',
+      '<F7>',
+      function()
+        require('dapui').toggle()
+      end,
+      desc = 'Debug: Toggle UI',
+    },
+    {
+      '<F8>',
+      function()
+        require('dap').set_breakpoint(vim.fn.input 'Breakpoint condition: ')
+      end,
+      desc = 'Debug: Set Conditional Breakpoint',
+    },
+    {
+      '<F9>',
+      function()
+        require('dap').toggle_breakpoint()
+      end,
+      desc = 'Debug: Toggle Breakpoint',
+    },
+    {
+      '<F10>',
       function()
         require('dap').step_over()
       end,
       desc = 'Debug: Step Over',
+    },
+    {
+      '<F11>',
+      function()
+        require('dap').step_into()
+      end,
+      desc = 'Debug: Step Into',
     },
     {
       '<F3>',
@@ -55,26 +83,11 @@ return {
       desc = 'Debug: Step Out',
     },
     {
-      '<leader>b',
+      '<leader>bc',
       function()
-        require('dap').toggle_breakpoint()
+        require('dap').clear_breakpoints()
       end,
-      desc = 'Debug: Toggle Breakpoint',
-    },
-    {
-      '<leader>B',
-      function()
-        require('dap').set_breakpoint(vim.fn.input 'Breakpoint condition: ')
-      end,
-      desc = 'Debug: Set Breakpoint',
-    },
-    -- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
-    {
-      '<F7>',
-      function()
-        require('dapui').toggle()
-      end,
-      desc = 'Debug: See last session result.',
+      desc = 'Debug: Clear All Breakpoints',
     },
     {
       '<leader>dw',
@@ -148,10 +161,10 @@ return {
       layouts = {
         {
           elements = {
-            { id = 'scopes', size = 0.25 },
-            { id = 'breakpoints', size = 0.25 },
-            { id = 'stacks', size = 0.25 },
-            { id = 'watches', size = 0.25 },
+            { id = 'scopes', size = 0.3 },
+            { id = 'watches', size = 0.3 },
+            { id = 'breakpoints', size = 0.2 },
+            { id = 'stacks', size = 0.2 },
           },
           size = 80,
           position = 'left',
