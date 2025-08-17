@@ -233,7 +233,14 @@ return {
       },
     }
 
-    -- Configure C/C++ debugging with codelldb
+    -- Configure C/C++ debugging with cpptools (Microsoft's debugger)
+    dap.adapters.cppdbg = {
+      id = 'cppdbg',
+      type = 'executable',
+      command = vim.fn.stdpath 'data' .. '/mason/bin/OpenDebugAD7',
+    }
+
+    -- Keep codelldb as backup option
     dap.adapters.codelldb = {
       type = 'server',
       port = '${port}',
@@ -245,7 +252,24 @@ return {
 
     dap.configurations.c = {
       {
-        name = 'Launch file',
+        name = 'Launch with cpptools',
+        type = 'cppdbg',
+        request = 'launch',
+        program = function()
+          return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+        end,
+        cwd = '${workspaceFolder}',
+        stopAtEntry = false,
+        setupCommands = {
+          {
+            text = '-enable-pretty-printing',
+            description = 'enable pretty printing',
+            ignoreFailures = false,
+          },
+        },
+      },
+      {
+        name = 'Launch with codelldb (backup)',
         type = 'codelldb',
         request = 'launch',
         program = function()
