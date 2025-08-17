@@ -113,6 +113,53 @@ return {
       end,
       desc = 'Debug: Hover variable',
     },
+    {
+      '<leader>da',
+      function()
+        local dap = require('dap')
+        if not dap.session() then
+          print('No active debug session')
+          return
+        end
+        
+        -- Create or reuse disassembly buffer
+        local buf_name = 'DAP Disassembly'
+        local existing_buf = nil
+        for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+          if vim.api.nvim_buf_get_name(buf):match(buf_name) then
+            existing_buf = buf
+            break
+          end
+        end
+        
+        local buf = existing_buf or vim.api.nvim_create_buf(false, true)
+        vim.api.nvim_buf_set_name(buf, buf_name)
+        vim.api.nvim_buf_set_option(buf, 'buftype', 'nofile')
+        vim.api.nvim_buf_set_option(buf, 'filetype', 'asm')
+        
+        -- Open in vertical split
+        vim.cmd('vsplit')
+        vim.api.nvim_win_set_buf(0, buf)
+        
+        -- Get disassembly using evaluate request
+        local session = dap.session()
+        if session then
+          session:evaluate('-exec disas', function(err, response)
+            if err then
+              vim.api.nvim_buf_set_lines(buf, 0, -1, false, {'Error getting disassembly: ' .. tostring(err)})
+            elseif response and response.result then
+              local lines = vim.split(response.result, '\n')
+              vim.api.nvim_buf_set_option(buf, 'modifiable', true)
+              vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+              vim.api.nvim_buf_set_option(buf, 'modifiable', false)
+            else
+              vim.api.nvim_buf_set_lines(buf, 0, -1, false, {'No disassembly available'})
+            end
+          end)
+        end
+      end,
+      desc = 'Debug: Show disassembly view',
+    },
   },
   config = function()
     local dap = require 'dap'
@@ -195,6 +242,47 @@ return {
     dap.listeners.after.event_initialized['dapui_config'] = dapui.open
     dap.listeners.before.event_terminated['dapui_config'] = dapui.close
     dap.listeners.before.event_exited['dapui_config'] = dapui.close
+
+    -- Update disassembly view on stepping
+    dap.listeners.after.event_stopped['disasm_update'] = function()
+      -- Find disassembly buffer
+      local disasm_buf = nil
+      for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.api.nvim_buf_get_name(buf):match('DAP Disassembly') then
+          disasm_buf = buf
+          break
+        end
+      end
+      
+      if disasm_buf and vim.api.nvim_buf_is_loaded(disasm_buf) then
+        local session = dap.session()
+        if session then
+          -- Get current instruction pointer and disassembly
+          session:evaluate('-exec disas', function(err, response)
+            if response and response.result then
+              local lines = vim.split(response.result, '\n')
+              vim.api.nvim_buf_set_option(disasm_buf, 'modifiable', true)
+              vim.api.nvim_buf_set_lines(disasm_buf, 0, -1, false, lines)
+              vim.api.nvim_buf_set_option(disasm_buf, 'modifiable', false)
+              
+              -- Find and highlight current instruction (marked with =>)
+              for i, line in ipairs(lines) do
+                if line:match('=>') then
+                  -- Find window displaying the disassembly buffer
+                  for _, win in ipairs(vim.api.nvim_list_wins()) do
+                    if vim.api.nvim_win_get_buf(win) == disasm_buf then
+                      vim.api.nvim_win_set_cursor(win, {i, 0})
+                      break
+                    end
+                  end
+                  break
+                end
+              end
+            end
+          end)
+        end
+      end
+    end
 
     -- Install golang specific config
     require('dap-go').setup {
