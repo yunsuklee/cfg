@@ -114,6 +114,87 @@ return {
       desc = 'Debug: Hover variable',
     },
     {
+      '<leader>dm',
+      function()
+        local dap = require('dap')
+        local session = dap.session()
+        if not session then
+          print('No active debug session')
+          return
+        end
+        
+        if not session.stopped_thread_id then
+          print('Process must be stopped to view memory')
+          return
+        end
+        
+        vim.ui.input({ prompt = 'Memory address (e.g., $sp, 0x7fff1234, &variable): ' }, function(addr)
+          if addr and addr ~= '' then
+            -- Ask for display format
+            vim.ui.select({'hex', 'decimal (signed)', 'decimal (unsigned)', 'binary', 'char'}, {
+              prompt = 'Display format:',
+            }, function(format)
+              if not format then return end
+              
+              -- Check if memory buffer already exists, reuse it
+              local buf_name = 'DAP Memory: ' .. addr .. ' (' .. format .. ')'
+              local existing_buf = nil
+              for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+                if vim.api.nvim_buf_get_name(buf):match(vim.pesc(addr)) and 
+                   vim.api.nvim_buf_get_name(buf):match(vim.pesc(format)) then
+                  existing_buf = buf
+                  break
+                end
+              end
+              
+              local buf = existing_buf or vim.api.nvim_create_buf(false, true)
+              if not existing_buf then
+                vim.api.nvim_buf_set_name(buf, buf_name)
+                vim.api.nvim_buf_set_option(buf, 'buftype', 'nofile')
+                vim.api.nvim_buf_set_option(buf, 'filetype', 'hexdump')
+              end
+              
+              vim.cmd('split')
+              vim.api.nvim_win_set_buf(0, buf)
+              
+              -- Choose GDB format based on selection
+              local gdb_format
+              if format == 'hex' then
+                gdb_format = 'x/64xb'
+              elseif format == 'decimal (signed)' then
+                gdb_format = 'x/64db'
+              elseif format == 'decimal (unsigned)' then
+                gdb_format = 'x/64ub'
+              elseif format == 'binary' then
+                gdb_format = 'x/64tb'
+              elseif format == 'char' then
+                gdb_format = 'x/64cb'
+              end
+              
+              -- Get memory dump via GDB
+              session:evaluate('-exec ' .. gdb_format .. ' ' .. addr, function(err, response)
+                if err then
+                  vim.api.nvim_buf_set_lines(buf, 0, -1, false, { 
+                    'Error reading memory: ' .. tostring(err),
+                    'Try using:',
+                    '  $sp, $rbp (registers)',  
+                    '  0x7fff1234 (hex address)',
+                    '  Variable addresses might not work with &variable syntax'
+                  })
+                elseif response and response.result then
+                  local lines = vim.split(response.result, '\n')
+                  vim.api.nvim_buf_set_option(buf, 'modifiable', true)
+                  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+                  vim.api.nvim_buf_set_option(buf, 'modifiable', false)
+                end
+              end)
+            end)
+          end
+        end)
+      end,
+      desc = 'Debug: View Memory',
+    },
+    {
       '<leader>da',
       function()
         local dap = require 'dap'
@@ -280,9 +361,12 @@ return {
     dap.listeners.before.event_terminated['dapui_config'] = dapui.close
     dap.listeners.before.event_exited['dapui_config'] = dapui.close
 
-    -- Update disassembly view on stepping
-    dap.listeners.after.event_stopped['disasm_update'] = function()
-      -- Find disassembly buffer
+    -- Update disassembly and memory views on stepping
+    dap.listeners.after.event_stopped['debug_update'] = function()
+      local session = dap.session()
+      if not session then return end
+      
+      -- Update disassembly buffer
       local disasm_buf = nil
       for _, buf in ipairs(vim.api.nvim_list_bufs()) do
         if vim.api.nvim_buf_get_name(buf):match 'DAP Disassembly' then
@@ -292,34 +376,66 @@ return {
       end
 
       if disasm_buf and vim.api.nvim_buf_is_loaded(disasm_buf) then
-        local session = dap.session()
-        if session then
-          -- Get current instruction pointer and disassembly using GDB
-          local disas_command = '-exec disas'
-          
-          -- Update disassembly (works with cpptools/GDB)
-          session:evaluate(disas_command, function(err, response)
-            if response and response.result then
-              local lines = vim.split(response.result, '\n')
-              vim.api.nvim_buf_set_option(disasm_buf, 'modifiable', true)
-              vim.api.nvim_buf_set_lines(disasm_buf, 0, -1, false, lines)
-              vim.api.nvim_buf_set_option(disasm_buf, 'modifiable', false)
+        local disas_command = '-exec disas'
+        session:evaluate(disas_command, function(err, response)
+          if response and response.result then
+            local lines = vim.split(response.result, '\n')
+            vim.api.nvim_buf_set_option(disasm_buf, 'modifiable', true)
+            vim.api.nvim_buf_set_lines(disasm_buf, 0, -1, false, lines)
+            vim.api.nvim_buf_set_option(disasm_buf, 'modifiable', false)
 
-              -- Find and highlight current instruction (marked with =>)
-              for i, line in ipairs(lines) do
-                if line:match '=>' then
-                  -- Find window displaying the disassembly buffer
-                  for _, win in ipairs(vim.api.nvim_list_wins()) do
-                    if vim.api.nvim_win_get_buf(win) == disasm_buf then
-                      vim.api.nvim_win_set_cursor(win, { i, 0 })
-                      break
-                    end
+            -- Find and highlight current instruction (marked with =>)
+            for i, line in ipairs(lines) do
+              if line:match '=>' then
+                for _, win in ipairs(vim.api.nvim_list_wins()) do
+                  if vim.api.nvim_win_get_buf(win) == disasm_buf then
+                    vim.api.nvim_win_set_cursor(win, { i, 0 })
+                    break
                   end
-                  break
                 end
+                break
               end
             end
-          end)
+          end
+        end)
+      end
+      
+      -- Update all memory buffers
+      for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+        local buf_name = vim.api.nvim_buf_get_name(buf)
+        if buf_name:match('DAP Memory:') and vim.api.nvim_buf_is_loaded(buf) then
+          -- Extract address and format from buffer name
+          -- Pattern: "DAP Memory: $sp (decimal (unsigned))"
+          local addr, format = buf_name:match('DAP Memory: ([^%(]+) %((.+)%)')
+          if addr and format then
+            -- Trim whitespace from addr
+            addr = addr:gsub('%s+$', '')
+            
+            -- Choose GDB format based on stored format
+            local gdb_format
+            if format == 'hex' then
+              gdb_format = 'x/64xb'
+            elseif format == 'decimal (signed)' then
+              gdb_format = 'x/64db'
+            elseif format == 'decimal (unsigned)' then
+              gdb_format = 'x/64ub'
+            elseif format == 'binary' then
+              gdb_format = 'x/64tb'
+            elseif format == 'char' then
+              gdb_format = 'x/64cb'
+            else
+              gdb_format = 'x/64xb' -- fallback to hex
+            end
+            
+            session:evaluate('-exec ' .. gdb_format .. ' ' .. addr, function(err, response)
+              if response and response.result then
+                local lines = vim.split(response.result, '\n')
+                vim.api.nvim_buf_set_option(buf, 'modifiable', true)
+                vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+                vim.api.nvim_buf_set_option(buf, 'modifiable', false)
+              end
+            end)
+          end
         end
       end
     end
