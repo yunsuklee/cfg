@@ -262,6 +262,7 @@ clip() {
     fi
 }
 
+# Compile cpp executable
 gcpp() {
     if [ $# -eq 0 ]; then
         echo "Usage: gccpp <main.cpp|main.o> [additional files...] [flags...]"
@@ -288,6 +289,7 @@ gcpp() {
     g++ -Wall -Wextra -Wshadow -Werror -pedantic -std=c++20 -g "$@" -lsyleec -o "$output"
 }
 
+# Compile cpp object files
 gcppo() {
     if [ $# -eq 0 ]; then
         echo "Usage: gcppo <main.cpp> [additional files...] [flags...]"
@@ -311,6 +313,7 @@ gcppo() {
     g++ -Wall -Wextra -Wshadow -Werror -pedantic -std=c++20 -g -c "$@" -lsyleec -o "$output"
 }
 
+# Compile c executable
 gc() {
     if [ $# -eq 0 ]; then
         echo "Usage: gcce <main.c|main.o> [additional files...] [flags...]"
@@ -334,6 +337,7 @@ gc() {
     gcc -Wall -Wextra -Wshadow -Werror -pedantic -std=c17 -g "$@" -lsyleec -o "$output"
 }
 
+# Compile c object files
 gco() {
     if [ $# -eq 0 ]; then
         echo "Usage: gcco <main.c> [additional files...] [flags...]"
@@ -343,6 +347,28 @@ gco() {
     local first_file="$1"
     local output="${first_file%.c}.o"
     gcc -Wall -Wextra -Wshadow -Werror -pedantic -std=c17 -g -c "$@" -lsyleec -o "$output"
+}
+
+# Easy benchmark function
+bench() {
+    local warmup=3
+    local runs=10
+
+    # Parse custom options
+    while [[ $1 == -* ]]; do
+        case $1 in
+            -w|--warmup) warmup="$2"; shift 2 ;;
+            -r|--runs) runs="$2"; shift 2 ;;
+            *) echo "Unknown option: $1"; return 1 ;;
+        esac
+    done
+
+    hyperfine --warmup "$warmup" --runs "$runs" "$*"
+}
+
+# Compare two versions
+compare() {
+    hyperfine --warmup 3 --runs 10 "$1" "$2"
 }
 
 #######################################################
