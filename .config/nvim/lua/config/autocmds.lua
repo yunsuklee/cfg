@@ -11,3 +11,13 @@ vim.api.nvim_create_autocmd('TextYankPost', {
     vim.hl.on_yank()
   end,
 })
+
+-- Set proper filetype for bash files
+vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
+  desc = 'Set bash filetype for shell scripts',
+  group = vim.api.nvim_create_augroup('bash-filetype', { clear = true }),
+  pattern = { '*.sh', '*.bash', '.bashrc', '.bash_profile', '.bash_aliases' },
+  callback = function()
+    vim.bo.filetype = 'bash'
+  end,
+})

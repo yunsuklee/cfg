@@ -56,6 +56,9 @@ return {
         yaml = { 'prettierd', 'prettier', stop_after_first = true },
         -- C# formatting
         cs = { 'csharpier' },
+        -- Bash/Shell formatting
+        sh = { 'shfmt' },
+        bash = { 'shfmt' },
         -- Zig formatting
         zig = { 'zigfmt' },
         -- Conform can also run multiple formatters sequentially

@@ -313,6 +313,9 @@ return {
           },
         },
         yamlls = {},
+        bashls = {
+          filetypes = { 'sh', 'bash' },
+        },
         zls = {
           cmd = { 'zls' },
           settings = {
@@ -345,6 +348,8 @@ return {
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
         'clangd', -- C++ LSP server
+        'bash-language-server', -- Bash LSP server
+        'shfmt', -- Bash formatter
         -- 'omnisharp', -- C# LSP server
         -- 'csharpier', -- C# formatter
         -- 'clang-format',
