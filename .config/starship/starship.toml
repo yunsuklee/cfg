@@ -1,6 +1,3 @@
-# Add left padding to prompt
-format = " $all"
-
 [aws]
 symbol = "  "
 
@@ -193,6 +190,6 @@ symbol = " "
 symbol = " "
 
 [character]
-format = " $symbol "
+format = "$symbol "
 success_symbol = "[❯](bold green)"
 error_symbol = "[❯](bold red)"

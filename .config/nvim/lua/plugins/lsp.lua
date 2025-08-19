@@ -347,9 +347,9 @@ return {
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
-        'clangd', -- C++ LSP server
-        'bash-language-server', -- Bash LSP server
-        'shfmt', -- Bash formatter
+        -- 'clangd', -- C++ LSP server
+        -- 'bash-language-server', -- Bash LSP server
+        -- 'shfmt', -- Bash formatter
         -- 'omnisharp', -- C# LSP server
         -- 'csharpier', -- C# formatter
         -- 'clang-format',
@@ -360,7 +360,7 @@ return {
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
       require('mason-lspconfig').setup {
-        ensure_installed = { 'clangd', 'omnisharp' }, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
+        -- ensure_installed = { 'clangd', 'omnisharp' }, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
         automatic_installation = true,
         handlers = {
           function(server_name)
