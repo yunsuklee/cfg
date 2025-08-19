@@ -352,6 +352,7 @@ gco() {
 bench() {
     local warmup=3
     local runs=10
+    local memory=false
 
     # Parse custom options
     while [[ $1 == -* ]]; do
@@ -364,6 +365,10 @@ bench() {
             runs="$2"
             shift 2
             ;;
+        -m | --memory)
+            memory=true
+            shift
+            ;;
         *)
             echo "Unknown option: $1"
             return 1
@@ -371,7 +376,38 @@ bench() {
         esac
     done
 
-    hyperfine --warmup "$warmup" --runs "$runs" "$*"
+    if [ "$memory" = true ]; then
+        echo "=== CPU Performance ==="
+        hyperfine --warmup "$warmup" --runs "$runs" "$*"
+        echo
+        echo "=== Memory Analysis ==="
+        valgrind --tool=massif --pages-as-heap=yes --massif-out-file=/tmp/massif_bench.out $* 2>/dev/null
+        ms_print /tmp/massif_bench.out | head -20
+        rm -f /tmp/massif_bench.out
+    else
+        hyperfine --warmup "$warmup" --runs "$runs" "$*"
+    fi
+}
+
+# Compare memory usage only
+comparemem() {
+    echo "=== Memory Analysis ==="
+    echo "Command 1: $1"
+    valgrind --tool=massif --pages-as-heap=yes --massif-out-file=/tmp/massif1.out bash -c "$1" 2>/dev/null
+    if [ -f /tmp/massif1.out ]; then
+        ms_print /tmp/massif1.out | head -20
+    else
+        /usr/bin/time -v bash -c "$1" 2>&1 | /usr/bin/grep -E "(Maximum resident set size|Average resident set size|Page faults|Percent of CPU)"
+    fi
+    echo
+    echo "Command 2: $2"
+    valgrind --tool=massif --pages-as-heap=yes --massif-out-file=/tmp/massif2.out bash -c "$2" 2>/dev/null
+    if [ -f /tmp/massif2.out ]; then
+        ms_print /tmp/massif2.out | head -20
+    else
+        /usr/bin/time -v bash -c "$2" 2>&1 | /usr/bin/grep -E "(Maximum resident set size|Average resident set size|Page faults|Percent of CPU)"
+    fi
+    rm -f /tmp/massif1.out /tmp/massif2.out
 }
 
 # Compare two versions
