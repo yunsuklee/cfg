@@ -7,7 +7,7 @@ return {
 
   { -- Autoformat
     'stevearc/conform.nvim',
-    event = 'BufWritePre', -- Load when about to save a file
+    event = { 'BufWritePre', 'BufReadPost' }, -- Load when saving or opening files
     cmd = 'ConformInfo', -- Also load when command is used
     keys = {
       {
@@ -23,9 +23,8 @@ return {
       notify_on_error = false,
       format_on_save = function(bufnr)
         -- Disable "format_on_save lsp_fallback" for languages that don't
-        -- have a well standardized coding style. You can add additional
-        -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = {} -- Removed c and cpp since clang-format is well standardized
+        -- have a well standardized coding style
+        local disable_filetypes = {}
         if disable_filetypes[vim.bo[bufnr].filetype] then
           return nil
         else

@@ -14,7 +14,7 @@ return {
   {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
-    event = { 'BufReadPre', 'BufnewFile' },
+    event = { 'BufReadPost', 'BufNewFile' }, -- Only load when actually opening files
     dependencies = {
       -- Automatically install LSPs and related tools to stdpath for Neovim
       -- Mason must be loaded before its dependents so we need to set it up here.
@@ -331,37 +331,68 @@ return {
         },
       }
 
-      -- Ensure the servers and tools above are installed
-      --
-      -- To check the current status of installed tools and/or manually install
-      -- other tools, you can run
-      --    :Mason
-      --
-      -- You can press `g?` for help in this menu.
-      --
-      -- `mason` had to be setup earlier: to configure its options see the
-      -- `dependencies` table for `nvim-lspconfig` above.
-      --
-      -- You can add other tools here that you want Mason to install
-      -- for you, so that they are available from within Neovim.
-      local ensure_installed = vim.tbl_keys(servers or {})
-      vim.list_extend(ensure_installed, {
-        'stylua', -- Used to format Lua code
-        -- 'clangd', -- C++ LSP server
-        -- 'bash-language-server', -- Bash LSP server
-        -- 'shfmt', -- Bash formatter
-        -- 'omnisharp', -- C# LSP server
-        -- 'csharpier', -- C# formatter
-        -- 'clang-format',
-        -- 'prettier',
-        -- 'prettierd',
-        -- 'eslint_d',
+      -- Install tools on-demand when needed by filetype
+      local installed_for_ft = {} -- Track what we've already tried to install
+      
+      local function install_on_demand()
+        local filetype = vim.bo.filetype
+        
+        -- Don't reinstall if we already tried for this filetype
+        if installed_for_ft[filetype] then
+          return
+        end
+        
+        local tools_by_ft = {
+          lua = { 'lua_ls' }, -- Remove stylua for now due to installation issues
+          rust = { 'rust_analyzer' },
+          c = { 'clangd' },
+          cpp = { 'clangd' },
+          cs = { 'omnisharp' },
+          javascript = { 'vtsls' },
+          typescript = { 'vtsls' },
+          javascriptreact = { 'vtsls' },
+          typescriptreact = { 'vtsls' },
+          yaml = { 'yamlls' },
+          sh = { 'bashls' },
+          bash = { 'bashls' },
+          zig = { 'zls' },
+        }
+        
+        local tools_to_install = tools_by_ft[filetype]
+        if tools_to_install then
+          installed_for_ft[filetype] = true
+          
+          -- Install tools asynchronously to avoid blocking
+          vim.schedule(function()
+            local mason_tool_installer = require('mason-tool-installer')
+            mason_tool_installer.setup { 
+              ensure_installed = tools_to_install,
+              auto_update = false,
+              run_on_start = false, -- Don't run immediately
+            }
+            
+            -- Trigger installation manually
+            vim.defer_fn(function()
+              vim.cmd('MasonToolsInstall')
+            end, 100)
+          end)
+        end
+      end
+
+      -- Create autocommand for on-demand installation
+      vim.api.nvim_create_autocmd('FileType', {
+        callback = install_on_demand,
+        desc = 'Install LSP/formatters on demand for specific filetypes'
       })
-      require('mason-tool-installer').setup { ensure_installed = ensure_installed }
+
+      require('mason-tool-installer').setup { 
+        ensure_installed = {}, -- Start with empty - tools installed on demand
+        auto_update = false,
+      }
 
       require('mason-lspconfig').setup {
-        -- ensure_installed = { 'clangd', 'omnisharp' }, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
-        automatic_installation = true,
+        ensure_installed = {}, -- No automatic installation
+        automatic_installation = false, -- Only install when manually requested
         handlers = {
           function(server_name)
             local server = servers[server_name] or {}
