@@ -8,7 +8,7 @@ iatest=$(expr index "$-" i)
 #######################################################
 
 # Display system info on interactive shell startup
-if command -v fastfetch &> /dev/null; then
+if command -v fastfetch &>/dev/null; then
     if [[ $- == *i* ]]; then
         fastfetch
     fi
@@ -43,9 +43,9 @@ export HISTTIMEFORMAT="%F %T"
 export HISTCONTROL=erasedups:ignoredups:ignorespace
 
 # Better terminal behavior
-shopt -s checkwinsize    # Update window size variables
-shopt -s histappend      # Append to history instead of overwriting
-PROMPT_COMMAND='history -a'  # Save history immediately
+shopt -s checkwinsize       # Update window size variables
+shopt -s histappend         # Append to history instead of overwriting
+PROMPT_COMMAND='history -a' # Save history immediately
 
 # Allow Ctrl+S for forward history search
 [[ $- == *i* ]] && stty -ixon
@@ -68,9 +68,9 @@ export PATH=$PATH:~/opt/zig
 # MODERN TOOL REPLACEMENTS
 #######################################################
 
-if command -v fd &> /dev/null; then
+if command -v fd &>/dev/null; then
     alias find='fd'
-elif command -v fd-find &> /dev/null; then
+elif command -v fd-find &>/dev/null; then
     alias find='fd-find'
 fi
 
@@ -78,9 +78,9 @@ alias grep='rg'
 alias ls='eza -a --color=auto --group-directories-first --git --icons'
 alias ll='eza -la --color=auto --group-directories-first --git --icons'
 
-if command -v batcat &> /dev/null; then
+if command -v batcat &>/dev/null; then
     alias cat='batcat --style=auto'
-elif command -v bat &> /dev/null; then
+elif command -v bat &>/dev/null; then
     alias cat='bat --style=auto'
 fi
 
@@ -90,7 +90,7 @@ fi
 
 alias cp='cp -i'
 alias mv='mv -i'
-alias rm='trash -v'  # Use trash-cli for recoverable deletion
+alias rm='trash -v' # Use trash-cli for recoverable deletion
 
 #######################################################
 # ENHANCED BASIC COMMANDS
@@ -133,8 +133,8 @@ alias sbrc="source ~/.bashrc"
 alias xdg="xdg-open"
 alias qt="quiet"
 alias h="history | grep " # history search
-alias p="ps aux | grep " # process search
-alias f="find . | grep " # file search
+alias p="ps aux | grep "  # process search
+alias f="find . | grep "  # file search
 alias topcpu="/bin/ps -eo pcpu,pid,user,args | sort -k 1 -r | head -10"
 alias openports='netstat -nape --inet'
 alias countfiles="for t in files links directories; do echo \`find . -type \${t:0:1} | wc -l\` \$t; done 2> /dev/null"
@@ -151,17 +151,16 @@ alias tm='tmux attach -t default 2>/dev/null || tmux new -s default'
 
 # Run command quietly in background
 quiet() {
-    "$@" &> /dev/null &
+    "$@" &>/dev/null &
 }
 
 # Automatically do an ls after each cd, z, or zoxide
-cd ()
-{
-	if [ -n "$1" ]; then
-		builtin cd "$@" && ls
-	else
-		builtin cd ~ && ls
-	fi
+cd() {
+    if [ -n "$1" ]; then
+        builtin cd "$@" && ls
+    else
+        builtin cd ~ && ls
+    fi
 }
 
 # Create directory and enter it
@@ -223,16 +222,16 @@ extract() {
     for archive in "$@"; do
         if [ -f "$archive" ]; then
             case $archive in
-                *.tar.bz2|*.tbz2)   tar xvjf "$archive" ;;
-                *.tar.gz|*.tgz)     tar xvzf "$archive" ;;
-                *.bz2)              bunzip2 "$archive" ;;
-                *.rar)              rar x "$archive" ;;
-                *.gz)               gunzip "$archive" ;;
-                *.tar)              tar xvf "$archive" ;;
-                *.zip)              unzip "$archive" ;;
-                *.Z)                uncompress "$archive" ;;
-                *.7z)               7z x "$archive" ;;
-                *)                  echo "Don't know how to extract '$archive'" ;;
+            *.tar.bz2 | *.tbz2) tar xvjf "$archive" ;;
+            *.tar.gz | *.tgz) tar xvzf "$archive" ;;
+            *.bz2) bunzip2 "$archive" ;;
+            *.rar) rar x "$archive" ;;
+            *.gz) gunzip "$archive" ;;
+            *.tar) tar xvf "$archive" ;;
+            *.zip) unzip "$archive" ;;
+            *.Z) uncompress "$archive" ;;
+            *.7z) 7z x "$archive" ;;
+            *) echo "Don't know how to extract '$archive'" ;;
             esac
         else
             echo "'$archive' is not a valid file!"
@@ -252,9 +251,9 @@ lsc() {
 
 # Get current clipboard
 clip() {
-    if [ -n "$WAYLAND_DISPLAY" ] && command -v wl-paste &> /dev/null; then
+    if [ -n "$WAYLAND_DISPLAY" ] && command -v wl-paste &>/dev/null; then
         wl-paste
-    elif command -v xclip &> /dev/null; then
+    elif command -v xclip &>/dev/null; then
         xclip -selection clipboard -o
     else
         echo "No working clipboard utility found" >&2
@@ -284,7 +283,7 @@ gcpp() {
     elif [[ "$first_file" == *.o ]]; then
         output="${first_file%.o}"
     else
-        output="$first_file"  # fallback for other extensions
+        output="$first_file" # fallback for other extensions
     fi
     g++ -Wall -Wextra -Wshadow -Werror -pedantic -std=c++20 -g "$@" -lsyleec -o "$output"
 }
@@ -308,7 +307,7 @@ gcppo() {
     elif [[ "$first_file" == *.C ]]; then
         output="${first_file%.C}.o"
     else
-        output="${first_file}.o"  # fallback
+        output="${first_file}.o" # fallback
     fi
     g++ -Wall -Wextra -Wshadow -Werror -pedantic -std=c++20 -g -c "$@" -lsyleec -o "$output"
 }
@@ -331,7 +330,7 @@ gc() {
     elif [[ "$first_file" == *.o ]]; then
         output="${first_file%.o}"
     else
-        output="$first_file"  # fallback for other extensions
+        output="$first_file" # fallback for other extensions
     fi
 
     gcc -Wall -Wextra -Wshadow -Werror -pedantic -std=c17 -g "$@" -lsyleec -o "$output"
@@ -357,9 +356,18 @@ bench() {
     # Parse custom options
     while [[ $1 == -* ]]; do
         case $1 in
-            -w|--warmup) warmup="$2"; shift 2 ;;
-            -r|--runs) runs="$2"; shift 2 ;;
-            *) echo "Unknown option: $1"; return 1 ;;
+        -w | --warmup)
+            warmup="$2"
+            shift 2
+            ;;
+        -r | --runs)
+            runs="$2"
+            shift 2
+            ;;
+        *)
+            echo "Unknown option: $1"
+            return 1
+            ;;
         esac
     done
 
@@ -369,6 +377,67 @@ bench() {
 # Compare two versions
 compare() {
     hyperfine --warmup 3 --runs 10 "$1" "$2"
+}
+
+# Windows config sync functions
+function pull_powershell() {
+    if [ -z "$WINDOWS_POWERSHELL_PROFILE" ]; then
+        echo "Error: WINDOWS_POWERSHELL_PROFILE not set in .bashrc_local"
+        return 1
+    fi
+
+    mkdir -p ~/.config/windows
+    if [ -f "$WINDOWS_POWERSHELL_PROFILE" ]; then
+        cp "$WINDOWS_POWERSHELL_PROFILE" ~/.config/windows/powershell_profile.ps1
+        echo "PowerShell profile pulled from Windows to WSL"
+    else
+        echo "Warning: PowerShell profile not found at $WINDOWS_POWERSHELL_PROFILE"
+    fi
+}
+
+function push_powershell() {
+    if [ -z "$WINDOWS_POWERSHELL_PROFILE" ]; then
+        echo "Error: WINDOWS_POWERSHELL_PROFILE not set in .bashrc_local"
+        return 1
+    fi
+
+    if [ -f ~/.config/windows/powershell_profile.ps1 ]; then
+        mkdir -p "$(dirname "$WINDOWS_POWERSHELL_PROFILE")"
+        cp ~/.config/windows/powershell_profile.ps1 "$WINDOWS_POWERSHELL_PROFILE"
+        echo "PowerShell profile pushed from WSL to Windows"
+    else
+        echo "Error: ~/.config/windows/powershell_profile.ps1 not found"
+    fi
+}
+
+function pull_terminal() {
+    if [ -z "$WINDOWS_TERMINAL_SETTINGS" ]; then
+        echo "Error: WINDOWS_TERMINAL_SETTINGS not set in .bashrc_local"
+        return 1
+    fi
+
+    mkdir -p ~/.config/windows
+    if [ -f "$WINDOWS_TERMINAL_SETTINGS" ]; then
+        cp "$WINDOWS_TERMINAL_SETTINGS" ~/.config/windows/terminal_settings.json
+        echo "Terminal settings pulled from Windows to WSL"
+    else
+        echo "Warning: Terminal settings not found at $WINDOWS_TERMINAL_SETTINGS"
+    fi
+}
+
+function push_terminal() {
+    if [ -z "$WINDOWS_TERMINAL_SETTINGS" ]; then
+        echo "Error: WINDOWS_TERMINAL_SETTINGS not set in .bashrc_local"
+        return 1
+    fi
+
+    if [ -f ~/.config/windows/terminal_settings.json ]; then
+        mkdir -p "$(dirname "$WINDOWS_TERMINAL_SETTINGS")"
+        cp ~/.config/windows/terminal_settings.json "$WINDOWS_TERMINAL_SETTINGS"
+        echo "Terminal settings pushed from WSL to Windows"
+    else
+        echo "Error: ~/.config/windows/terminal_settings.json not found"
+    fi
 }
 
 #######################################################
@@ -415,10 +484,10 @@ fi
 # Alert alias for long running commands - cross-platform notification
 # Usage: long_command; alert
 # Works with both native Linux notifications and WSL (if Windows notifications are set up)
-if command -v notify-send &> /dev/null; then
+if command -v notify-send &>/dev/null; then
     # Native Linux (Pop!_OS, Ubuntu desktop)
     alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '"'"'s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'"'"')"'
-elif [[ -n "${WSL_DISTRO_NAME:-}" ]] && command -v powershell.exe &> /dev/null; then
+elif [[ -n "${WSL_DISTRO_NAME:-}" ]] && command -v powershell.exe &>/dev/null; then
     # WSL with Windows PowerShell available
     alias alert='powershell.exe -Command "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show(\"Command finished: $(history|tail -n1|sed -e '"'"'s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'"'"')\", \"Terminal Alert\")"'
 else
@@ -428,13 +497,12 @@ fi
 
 # Set terminal title to show current directory (works in most terminals including WSL)
 case "$TERM" in
-xterm*|rxvt*|alacritty*|screen*|tmux*)
+xterm* | rxvt* | alacritty* | screen* | tmux*)
     # Update terminal title with user@host:directory
     # This works in both native Linux and WSL terminals
     PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD}\007"'
     ;;
-*)
-    ;;
+*) ;;
 esac
 
 #######################################################
@@ -442,7 +510,7 @@ esac
 #######################################################
 
 # Starship
-if command -v starship &> /dev/null; then
+if command -v starship &>/dev/null; then
     eval "$(starship init bash)"
 fi
 
@@ -458,4 +526,3 @@ fi
 
 # Initialize modern shell tools
 eval "$(zoxide init bash)"
-
