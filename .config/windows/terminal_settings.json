@@ -39,28 +39,32 @@
             "keys": "ctrl+c"
         },
         {
+            "id": "User.find",
+            "keys": "ctrl+shift+f"
+        },
+        {
             "id": "User.paste",
             "keys": "ctrl+v"
         },
         {
-            "id": "User.find",
-            "keys": "ctrl+shift+f"
+            "id": "Terminal.OpenNewWindow",
+            "keys": "alt+n"
         },
         {
             "id": "User.splitPane.A6751878",
             "keys": "alt+shift+d"
         },
         {
-            "id": "Terminal.SwitchToTab0",
-            "keys": "alt+1"
+            "id": "Terminal.SwitchToTab5",
+            "keys": "alt+6"
         },
         {
             "id": null,
             "keys": "ctrl+alt+1"
         },
         {
-            "id": "Terminal.SwitchToTab5",
-            "keys": "alt+6"
+            "id": "Terminal.SwitchToTab0",
+            "keys": "alt+1"
         },
         {
             "id": "Terminal.SwitchToTab2",
@@ -85,6 +89,10 @@
         {
             "id": "Terminal.SwitchToTab3",
             "keys": "alt+4"
+        },
+        {
+            "id": null,
+            "keys": "ctrl+shift+n"
         },
         {
             "id": null,
