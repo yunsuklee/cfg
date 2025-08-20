@@ -18,23 +18,71 @@ vim.o.showmode = false
 -- Sync clipboard between OS and Neovim
 vim.schedule(function()
   vim.o.clipboard = 'unnamedplus'
-  
-  -- Configure clipboard for WSL environment
-  if vim.fn.has('wsl') == 1 and vim.fn.executable('win32yank.exe') == 1 then
+end)
+
+local function setup_clipboard()
+  -- Check if we're in WSL
+  if vim.fn.has('wsl') == 1 then
+    -- Try win32yank first (fastest), then fallback to clip.exe + powershell
+    if vim.fn.executable('win32yank.exe') == 1 then
+      vim.g.clipboard = {
+        name = 'win32yank-wsl',
+        copy = {
+          ['+'] = 'win32yank.exe -i --crlf',
+          ['*'] = 'win32yank.exe -i --crlf',
+        },
+        paste = {
+          ['+'] = 'win32yank.exe -o --lf',
+          ['*'] = 'win32yank.exe -o --lf',
+        },
+        cache_enabled = 0,
+      }
+    else
+      vim.g.clipboard = {
+        name = 'WslClipboard',
+        copy = {
+          ['+'] = 'clip.exe',
+          ['*'] = 'clip.exe',
+        },
+        paste = {
+          ['+'] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
+          ['*'] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
+        },
+        cache_enabled = 0,
+      }
+    end
+  -- Check if wl-copy is available (Wayland)
+  elseif vim.fn.executable('wl-copy') == 1 then
     vim.g.clipboard = {
-      name = 'win32yank-wsl',
+      name = 'wl-clipboard',
       copy = {
-        ['+'] = 'win32yank.exe -i --crlf',
-        ['*'] = 'win32yank.exe -i --crlf',
+        ['+'] = 'wl-copy',
+        ['*'] = 'wl-copy',
       },
       paste = {
-        ['+'] = 'win32yank.exe -o --lf',
-        ['*'] = 'win32yank.exe -o --lf',
+        ['+'] = 'wl-paste --no-newline',
+        ['*'] = 'wl-paste --no-newline',
+      },
+      cache_enabled = 0,
+    }
+  -- Fallback to xclip (X11)
+  elseif vim.fn.executable('xclip') == 1 then
+    vim.g.clipboard = {
+      name = 'xclip',
+      copy = {
+        ['+'] = 'xclip -selection clipboard',
+        ['*'] = 'xclip -selection primary',
+      },
+      paste = {
+        ['+'] = 'xclip -selection clipboard -o',
+        ['*'] = 'xclip -selection primary -o',
       },
       cache_enabled = 0,
     }
   end
-end)
+end
+
+setup_clipboard()
 
 -- Enable break indent
 vim.o.breakindent = true
