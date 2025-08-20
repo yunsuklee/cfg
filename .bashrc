@@ -515,16 +515,15 @@ function pull_nvim() {
         # Pull core config files
         [ -f "$WINDOWS_NVIM_CONFIG/init.lua" ] && cp "$WINDOWS_NVIM_CONFIG/init.lua" ~/.config/nvim/
         [ -d "$WINDOWS_NVIM_CONFIG/lua/config" ] && cp -r "$WINDOWS_NVIM_CONFIG/lua/config"/* ~/.config/nvim/lua/config/
-        
+
         # Pull text editing/navigation plugins only
         [ -f "$WINDOWS_NVIM_CONFIG/lua/plugins/editor.lua" ] && cp "$WINDOWS_NVIM_CONFIG/lua/plugins/editor.lua" ~/.config/nvim/lua/plugins/
         [ -f "$WINDOWS_NVIM_CONFIG/lua/plugins/scrolling.lua" ] && cp "$WINDOWS_NVIM_CONFIG/lua/plugins/scrolling.lua" ~/.config/nvim/lua/plugins/
         [ -f "$WINDOWS_NVIM_CONFIG/lua/plugins/themes.lua" ] && cp "$WINDOWS_NVIM_CONFIG/lua/plugins/themes.lua" ~/.config/nvim/lua/plugins/
-        [ -f "$WINDOWS_NVIM_CONFIG/lua/plugins/treesitter.lua" ] && cp "$WINDOWS_NVIM_CONFIG/lua/plugins/treesitter.lua" ~/.config/nvim/lua/plugins/
         [ -f "$WINDOWS_NVIM_CONFIG/lua/plugins/ui.lua" ] && cp "$WINDOWS_NVIM_CONFIG/lua/plugins/ui.lua" ~/.config/nvim/lua/plugins/
         [ -f "$WINDOWS_NVIM_CONFIG/lua/plugins/harpoon.lua" ] && cp "$WINDOWS_NVIM_CONFIG/lua/plugins/harpoon.lua" ~/.config/nvim/lua/plugins/
         [ -f "$WINDOWS_NVIM_CONFIG/lua/plugins/git.lua" ] && cp "$WINDOWS_NVIM_CONFIG/lua/plugins/git.lua" ~/.config/nvim/lua/plugins/
-        
+
         echo "Neovim config pulled from Windows to WSL (editor configs only, no LSP/debug/completion)"
     else
         echo "Warning: Neovim config directory not found at $WINDOWS_NVIM_CONFIG"
@@ -539,20 +538,19 @@ function push_nvim() {
 
     if [ -d ~/.config/nvim ]; then
         mkdir -p "$WINDOWS_NVIM_CONFIG/lua/config" "$WINDOWS_NVIM_CONFIG/lua/plugins"
-        
+
         # Push core config files
         [ -f ~/.config/nvim/init.lua ] && cp ~/.config/nvim/init.lua "$WINDOWS_NVIM_CONFIG/"
         [ -d ~/.config/nvim/lua/config ] && cp -r ~/.config/nvim/lua/config/* "$WINDOWS_NVIM_CONFIG/lua/config/"
-        
+
         # Push text editing/navigation plugins only
         [ -f ~/.config/nvim/lua/plugins/editor.lua ] && cp ~/.config/nvim/lua/plugins/editor.lua "$WINDOWS_NVIM_CONFIG/lua/plugins/"
         [ -f ~/.config/nvim/lua/plugins/scrolling.lua ] && cp ~/.config/nvim/lua/plugins/scrolling.lua "$WINDOWS_NVIM_CONFIG/lua/plugins/"
         [ -f ~/.config/nvim/lua/plugins/themes.lua ] && cp ~/.config/nvim/lua/plugins/themes.lua "$WINDOWS_NVIM_CONFIG/lua/plugins/"
-        [ -f ~/.config/nvim/lua/plugins/treesitter.lua ] && cp ~/.config/nvim/lua/plugins/treesitter.lua "$WINDOWS_NVIM_CONFIG/lua/plugins/"
         [ -f ~/.config/nvim/lua/plugins/ui.lua ] && cp ~/.config/nvim/lua/plugins/ui.lua "$WINDOWS_NVIM_CONFIG/lua/plugins/"
         [ -f ~/.config/nvim/lua/plugins/harpoon.lua ] && cp ~/.config/nvim/lua/plugins/harpoon.lua "$WINDOWS_NVIM_CONFIG/lua/plugins/"
         [ -f ~/.config/nvim/lua/plugins/git.lua ] && cp ~/.config/nvim/lua/plugins/git.lua "$WINDOWS_NVIM_CONFIG/lua/plugins/"
-        
+
         echo "Neovim config pushed from WSL to Windows (editor configs only, no LSP/debug/completion)"
     else
         echo "Error: ~/.config/nvim not found"
