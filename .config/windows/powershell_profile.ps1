@@ -20,9 +20,14 @@ if (Get-Command rg -ErrorAction SilentlyContinue) {
 }
 
 # LS replacement: eza -> Get-ChildItem
+# Remove any existing ls alias
+if (Get-Alias ls -ErrorAction SilentlyContinue) {
+    Remove-Item Alias:ls -Force -ErrorAction SilentlyContinue
+}
+
 if (Get-Command eza -ErrorAction SilentlyContinue) {
-    function ls { eza -a --color=auto --group-directories-first --git --icons @args }
-    function ll { eza -la --color=auto --group-directories-first --git --icons @args }
+    function ls { eza --almost-all --color=auto --group-directories-first --git --icons @args }
+    function ll { eza -l --almost-all --color=auto --group-directories-first --git --icons @args }
 } else {
     function ls { Get-ChildItem -Force @args }
     function ll { Get-ChildItem -Force -Name @args | ForEach-Object { Get-ChildItem -Force $_ } | Format-Table Mode, LastWriteTime, Length, Name }
@@ -39,14 +44,22 @@ if (Get-Command bat -ErrorAction SilentlyContinue) {
 # NAVIGATION WITH AUTO-LS
 #######################################################
 
-# CD with auto-ls
+# CD with auto-ls and zoxide tracking
 function Set-LocationWithList {
     param([string]$Path = "~")
     if ($Path) {
         Set-Location $Path
+        # Call zoxide hook to track directory changes
+        if (Get-Command __zoxide_hook -ErrorAction SilentlyContinue) {
+            __zoxide_hook
+        }
         ls
     } else {
         Set-Location ~
+        # Call zoxide hook to track directory changes
+        if (Get-Command __zoxide_hook -ErrorAction SilentlyContinue) {
+            __zoxide_hook
+        }
         ls
     }
 }
@@ -56,18 +69,7 @@ if (Get-Alias cd -ErrorAction SilentlyContinue) {
 }
 Set-Alias cd Set-LocationWithList
 
-# Z (zoxide equivalent) with auto-ls - requires zoxide to be installed
-if (Get-Command z -ErrorAction SilentlyContinue) {
-    function Invoke-ZoxideWithList {
-        z @args
-        ls
-    }
-    # Remove existing z alias if it exists and create new one
-    if (Get-Alias z -ErrorAction SilentlyContinue) {
-        Remove-Item Alias:z -Force -ErrorAction SilentlyContinue
-    }
-    Set-Alias z Invoke-ZoxideWithList
-}
+# Z (zoxide equivalent) with auto-ls will be set up after zoxide initialization
 
 #######################################################
 # SAFETY ALIASES
@@ -288,11 +290,20 @@ if (Get-Module -ListAvailable -Name posh-git) {
 # Initialize zoxide if available
 if (Get-Command zoxide -ErrorAction SilentlyContinue) {
     Invoke-Expression (& { (zoxide init powershell | Out-String) })
+    
+    # Override zoxide's z command to include auto-ls
+    function Invoke-ZoxideWithList {
+        & (Get-Command __zoxide_z -CommandType Function) @args
+        if ($?) { ls }  # Only run ls if z command succeeded
+    }
+    # Remove existing z alias if it exists and create new one
+    if (Get-Alias z -ErrorAction SilentlyContinue) {
+        Remove-Item Alias:z -Force -ErrorAction SilentlyContinue
+    }
+    Set-Alias z Invoke-ZoxideWithList
 }
 
 # Initialize starship if available (should be after posh-git)
 if (Get-Command starship -ErrorAction SilentlyContinue) {
     Invoke-Expression (& { (starship init powershell | Out-String) })
 }
-
-Write-Host "PowerShell profile loaded with bash-like functionality!" -ForegroundColor Green
