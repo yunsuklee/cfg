@@ -64,6 +64,9 @@ export STARSHIP_CONFIG=~/.config/starship/starship.toml
 export EDITOR=nvim
 export VISUAL=nvim
 export PATH=$PATH:~/opt/zig
+export PATH="$HOME/.dotnet:$PATH"
+export PATH="$PATH:$HOME/.dotnet/tools"
+export DOTNET_ROOT="$HOME/.dotnet"
 
 # MODERN TOOL REPLACEMENTS
 #######################################################
@@ -247,18 +250,6 @@ lsc() {
     dir_count=$(find . -maxdepth 1 -type d ! -name '.' | wc -l)
     total_size=$(du -sh . 2>/dev/null | cut -f1)
     echo "Files: $file_count  Dirs: $dir_count  Size: $total_size"
-}
-
-# Get current clipboard
-clip() {
-    if [ -n "$WAYLAND_DISPLAY" ] && command -v wl-paste &>/dev/null; then
-        wl-paste
-    elif command -v xclip &>/dev/null; then
-        xclip -selection clipboard -o
-    else
-        echo "No working clipboard utility found" >&2
-        return 1
-    fi
 }
 
 # Compile cpp executable
@@ -561,4 +552,10 @@ if [[ $- == *i* ]]; then
 fi
 
 # Initialize modern shell tools
-eval "$(zoxide init bash)"
+# Zoxide with custom hook to run ls after directory change
+eval "$(zoxide init bash --hook pwd)"
+
+# Override zoxide's z command to include ls
+z() {
+    __zoxide_z "$@" && ls
+}
