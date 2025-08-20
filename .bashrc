@@ -63,6 +63,7 @@ fi
 export STARSHIP_CONFIG=~/.config/starship/starship.toml
 export EDITOR=nvim
 export VISUAL=nvim
+export PATH=~/.npm-global/bin:$PATH
 export PATH=$PATH:~/opt/zig
 export PATH="$HOME/.dotnet:$PATH"
 export PATH="$PATH:$HOME/.dotnet/tools"
