@@ -272,12 +272,25 @@ $env:VISUAL = "nvim"
 # TOOL INITIALIZATION  
 #######################################################
 
+# Initialize posh-git for git autocomplete and enhanced git prompt
+if (Get-Module -ListAvailable -Name posh-git) {
+    Import-Module posh-git
+    # Enable git tab completion
+    $GitPromptSettings.EnablePromptStatus = $true
+    $GitPromptSettings.EnableFileStatus = $true
+    # Customize git prompt to work well with starship
+    $GitPromptSettings.DefaultPromptAbbreviateHomeDirectory = $true
+    $GitPromptSettings.DefaultPromptWriteStatusFirst = $true
+} else {
+    Write-Host "posh-git not installed. Install with: Install-Module posh-git -Scope CurrentUser" -ForegroundColor Yellow
+}
+
 # Initialize zoxide if available
 if (Get-Command zoxide -ErrorAction SilentlyContinue) {
     Invoke-Expression (& { (zoxide init powershell | Out-String) })
 }
 
-# Initialize starship if available
+# Initialize starship if available (should be after posh-git)
 if (Get-Command starship -ErrorAction SilentlyContinue) {
     Invoke-Expression (& { (starship init powershell | Out-String) })
 }
