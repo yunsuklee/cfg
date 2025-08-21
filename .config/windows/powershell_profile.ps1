@@ -85,7 +85,7 @@ if (Get-Alias cp -ErrorAction SilentlyContinue) {
 }
 Set-Alias cp Copy-ItemSafe
 
-# Safe move (PowerShell doesn't have -i flag, but we can use -Confirm) 
+# Safe move (PowerShell doesn't have -i flag, but we can use -Confirm)
 function Move-ItemSafe {
     Move-Item -Confirm @args
 }
@@ -151,9 +151,6 @@ Set-Alias ..... Set-LocationGreatGreatGrandparent -Force
 #######################################################
 # PRODUCTIVITY ALIASES
 #######################################################
-
-# Clear screen
-Set-Alias cl Clear-Host -Force
 
 # File search function (equivalent to find . | grep)
 function Find-Files {
@@ -235,18 +232,18 @@ Set-Alias ftext Find-TextInFiles -Force
 # Detailed ls with file/directory counts
 function Get-DetailedListing {
     param([string]$Path = ".")
-    
+
     if (Get-Command eza -ErrorAction SilentlyContinue) {
         eza -la --color=auto --group-directories-first --git --icons --bytes --time-style=long-iso $Path
     } else {
         Get-ChildItem -Force $Path | Format-Table Mode, LastWriteTime, Length, Name -AutoSize
     }
-    
+
     Write-Host ""
     $files = @(Get-ChildItem -Path $Path -File)
     $dirs = @(Get-ChildItem -Path $Path -Directory)
     $totalSize = (Get-ChildItem -Path $Path -Recurse -File | Measure-Object -Property Length -Sum).Sum
-    
+
     # Convert bytes to human readable format
     if ($totalSize -gt 1GB) {
         $sizeStr = "{0:N2} GB" -f ($totalSize / 1GB)
@@ -257,7 +254,7 @@ function Get-DetailedListing {
     } else {
         $sizeStr = "$totalSize bytes"
     }
-    
+
     Write-Host "Files: $($files.Count)  Dirs: $($dirs.Count)  Size: $sizeStr"
 }
 Set-Alias lsc Get-DetailedListing -Force
@@ -271,7 +268,7 @@ $env:EDITOR = "nvim"
 $env:VISUAL = "nvim"
 
 #######################################################
-# TOOL INITIALIZATION  
+# TOOL INITIALIZATION
 #######################################################
 
 # Initialize posh-git for git autocomplete and enhanced git prompt
@@ -290,7 +287,7 @@ if (Get-Module -ListAvailable -Name posh-git) {
 # Initialize zoxide if available
 if (Get-Command zoxide -ErrorAction SilentlyContinue) {
     Invoke-Expression (& { (zoxide init powershell | Out-String) })
-    
+
     # Override zoxide's z command to include auto-ls
     function Invoke-ZoxideWithList {
         & (Get-Command __zoxide_z -CommandType Function) @args

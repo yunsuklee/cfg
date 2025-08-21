@@ -130,7 +130,6 @@ alias .....='cd ../../../..'
 #######################################################
 
 alias cfg='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
-alias cl="clear"
 alias vbrc="nvim ~/.bashrc"
 alias vbrcl="nvim ~/.bashrc_local"
 alias sbrc="source ~/.bashrc"
