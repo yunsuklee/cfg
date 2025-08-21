@@ -1,10 +1,10 @@
 {
     "$help": "https://aka.ms/terminal-documentation",
     "$schema": "https://aka.ms/terminal-profiles-schema",
-    "actions": 
+    "actions":
     [
         {
-            "command": 
+            "command":
             {
                 "action": "copy",
                 "singleLine": false
@@ -20,7 +20,7 @@
             "id": "User.find"
         },
         {
-            "command": 
+            "command":
             {
                 "action": "splitPane",
                 "split": "auto",
@@ -32,7 +32,7 @@
     "copyFormatting": "none",
     "copyOnSelect": false,
     "defaultProfile": "{574e775e-4f2a-5b96-ac1e-a2962a402336}",
-    "keybindings": 
+    "keybindings":
     [
         {
             "id": "User.copy.644BA8F2",
@@ -153,25 +153,33 @@
         {
             "id": null,
             "keys": "alt+shift+plus"
+        },
+        {
+            "id": "Terminal.OpenNewTab",
+            "keys": "alt+t"
+        },
+        {
+            "id": null,
+            "keys": "ctrl+shift+t"
         }
     ],
-    "newTabMenu": 
+    "newTabMenu":
     [
         {
             "type": "remainingProfiles"
         }
     ],
-    "profiles": 
+    "profiles":
     {
-        "defaults": 
+        "defaults":
         {
             "colorScheme": "GruvboxDark",
-            "font": 
+            "font":
             {
                 "face": "FiraCode Nerd Font Mono"
             }
         },
-        "list": 
+        "list":
         [
             {
                 "guid": "{574e775e-4f2a-5b96-ac1e-a2962a402336}",
@@ -186,9 +194,15 @@
                 "name": "Windows PowerShell"
             },
             {
+                "guid": "{58e8dcce-fac9-556d-a8ab-8ff6050e894f}",
+                "hidden": false,
+                "name": "Ubuntu-24.04",
+                "source": "Microsoft.WSL"
+            },
+            {
                 "commandline": "%SystemRoot%\\System32\\cmd.exe",
                 "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
-                "hidden": true,
+                "hidden": false,
                 "name": "Command Prompt"
             },
             {
@@ -232,16 +246,10 @@
                 "hidden": true,
                 "name": "Visual Studio Debug Console",
                 "source": "VSDebugConsole"
-            },
-            {
-                "guid": "{58e8dcce-fac9-556d-a8ab-8ff6050e894f}",
-                "hidden": false,
-                "name": "Ubuntu-24.04",
-                "source": "Microsoft.WSL"
             }
         ]
     },
-    "schemes": 
+    "schemes":
     [
         {
             "background": "#282828",

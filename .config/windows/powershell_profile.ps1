@@ -75,9 +75,16 @@ Set-Alias cd Set-LocationWithList
 # SAFETY ALIASES
 #######################################################
 
-# Safe copy (PowerShell doesn't have -i flag, but we can use -Confirm)
+# Safe copy (interactive confirmation only when overwriting)
 function Copy-ItemSafe {
-    Copy-Item -Confirm @args
+    if (Test-Path $args[1]) {
+        $choice = Read-Host "Overwrite '$($args[1])'? (y/n)"
+        if ($choice -notmatch '^[Yy]') {
+            Write-Host "Copy cancelled."
+            return
+        }
+    }
+    Copy-Item @args
 }
 # Remove existing cp alias if it exists and create new one
 if (Get-Alias cp -ErrorAction SilentlyContinue) {
@@ -99,7 +106,18 @@ if (Get-Command trash -ErrorAction SilentlyContinue) {
     Set-Alias rm Remove-ItemTrash -Force
 } else {
     function Remove-ItemSafe {
-        Remove-Item -Confirm @args
+        foreach ($Path in $args) {
+            if (Test-Path $Path) {
+                $choice = Read-Host "Remove '$Path'? (y/n)"
+                if ($choice -match '^[Yy]') {
+                    Remove-Item $Path
+                } else {
+                    Write-Host "Remove cancelled for '$Path'."
+                }
+            } else {
+                Write-Host "Path not found: $Path"
+            }
+        }
     }
     Set-Alias rm Remove-ItemSafe -Force
 }
@@ -119,6 +137,21 @@ function Remove-DirectoryForce {
     Remove-Item -Recurse -Force -Verbose @args
 }
 Set-Alias rmd Remove-DirectoryForce -Force
+
+# Touch command to create files (updates timestamp if exists)
+function New-FileTouch {
+    param([string[]]$Paths)
+    foreach ($Path in $Paths) {
+        if (Test-Path $Path) {
+            # Update timestamp if file exists
+            (Get-Item $Path).LastWriteTime = Get-Date
+        } else {
+            # Create new empty file
+            New-Item -ItemType File -Path $Path -Force | Out-Null
+        }
+    }
+}
+Set-Alias touch New-FileTouch -Force
 
 #######################################################
 # EDITOR ALIASES
