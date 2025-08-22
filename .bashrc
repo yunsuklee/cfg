@@ -646,5 +646,16 @@ eval "$(zoxide init bash --hook pwd)"
 
 # Override zoxide's z command to include ls
 z() {
-    __zoxide_z "$@" && ls
+    if [ "$#" -eq 0 ]; then
+        _z_cd ~ && ls
+    elif [ "$#" -eq 1 ] && [ "$1" = '-' ]; then
+        if [ -n "$OLDPWD" ]; then
+            _z_cd "$OLDPWD" && ls
+        else
+            echo 'zoxide: $OLDPWD is not set'
+            return 1
+        fi
+    else
+        _zoxide_result="$(zoxide query -- "$@")" && _z_cd "$_zoxide_result" && ls
+    fi
 }
