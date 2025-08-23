@@ -20,11 +20,13 @@ vim.schedule(function()
   vim.o.clipboard = 'unnamedplus'
 end)
 
+-- Temporarily disable custom clipboard to test system default
+--[[
 local function setup_clipboard()
   local is_tmux = vim.env.TMUX ~= nil
   local is_wsl = vim.fn.has('wsl') == 1
   local is_windows = vim.fn.has('win32') == 1 or vim.fn.has('win64') == 1
-  local is_wayland = vim.env.WAYLAND_DISPLAY ~= nil or vim.env.XDG_SESSION_TYPE == 'wayland'
+  local is_wayland = (vim.env.WAYLAND_DISPLAY ~= nil and vim.env.WAYLAND_DISPLAY ~= '') or vim.env.XDG_SESSION_TYPE == 'wayland'
   
   -- Windows (native)
   if is_windows then
@@ -76,8 +78,8 @@ local function setup_clipboard()
         vim.g.clipboard = {
           name = 'WslClipboard-tmux',
           copy = {
-            ['+'] = 'tee >(clip.exe) | tmux load-buffer -',
-            ['*'] = 'tee >(clip.exe) | tmux load-buffer -',
+            ['+'] = 'bash -c "tee >(clip.exe) | tmux load-buffer -"',
+            ['*'] = 'bash -c "tee >(clip.exe) | tmux load-buffer -"',
           },
           paste = {
             ['+'] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
@@ -106,8 +108,8 @@ local function setup_clipboard()
       vim.g.clipboard = {
         name = 'wl-clipboard-tmux',
         copy = {
-          ['+'] = 'tee >(wl-copy) | tmux load-buffer -',
-          ['*'] = 'tee >(wl-copy) | tmux load-buffer -',
+          ['+'] = 'bash -c "tee >(wl-copy) | tmux load-buffer -"',
+          ['*'] = 'bash -c "tee >(wl-copy) | tmux load-buffer -"',
         },
         paste = {
           ['+'] = 'wl-paste --no-newline',
@@ -133,10 +135,10 @@ local function setup_clipboard()
   elseif vim.fn.executable('xclip') == 1 then
     if is_tmux then
       vim.g.clipboard = {
-        name = 'xclip-tmux',
+        name = 'xclip-simple',
         copy = {
-          ['+'] = 'tee >(xclip -selection clipboard) | tmux load-buffer -',
-          ['*'] = 'tee >(xclip -selection primary) | tmux load-buffer -',
+          ['+'] = 'xclip -selection clipboard',
+          ['*'] = 'xclip -selection primary',
         },
         paste = {
           ['+'] = 'xclip -selection clipboard -o',
@@ -164,8 +166,8 @@ local function setup_clipboard()
       vim.g.clipboard = {
         name = 'xsel-tmux',
         copy = {
-          ['+'] = 'tee >(xsel --clipboard --input) | tmux load-buffer -',
-          ['*'] = 'tee >(xsel --primary --input) | tmux load-buffer -',
+          ['+'] = 'bash -c "tee >(xsel --clipboard --input) | tmux load-buffer -"',
+          ['*'] = 'bash -c "tee >(xsel --primary --input) | tmux load-buffer -"',
         },
         paste = {
           ['+'] = 'xsel --clipboard --output',
@@ -205,6 +207,7 @@ local function setup_clipboard()
 end
 
 setup_clipboard()
+--]]
 
 -- Enable break indent
 vim.o.breakindent = true
