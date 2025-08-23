@@ -642,20 +642,20 @@ fi
 
 # Initialize modern shell tools
 # Zoxide with custom hook to run ls after directory change
-eval "$(zoxide init bash --hook pwd)"
+eval "$(zoxide init bash)"
 
-# Override zoxide's z command to include ls
+# Override zoxide's z command (ls handled by custom cd function)
 z() {
     if [ "$#" -eq 0 ]; then
-        _z_cd ~ && ls
+        _z_cd ~
     elif [ "$#" -eq 1 ] && [ "$1" = '-' ]; then
         if [ -n "$OLDPWD" ]; then
-            _z_cd "$OLDPWD" && ls
+            _z_cd "$OLDPWD"
         else
             echo 'zoxide: $OLDPWD is not set'
             return 1
         fi
     else
-        _zoxide_result="$(zoxide query -- "$@")" && _z_cd "$_zoxide_result" && ls
+        _zoxide_result="$(zoxide query -- "$@")" && _z_cd "$_zoxide_result"
     fi
 }
