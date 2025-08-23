@@ -94,7 +94,13 @@ return {
     'folke/todo-comments.nvim',
     event = 'BufRead',
     dependencies = { 'nvim-lua/plenary.nvim' },
-    opts = { signs = false },
+    opts = {
+      signs = false,
+      highlight = {
+        keyword = 'bg',
+        pattern = [[.*<(KEYWORDS).*:]],
+      },
+    },
   },
 
   { -- Collection of various small independent plugins/modules
