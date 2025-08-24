@@ -644,7 +644,7 @@ fi
 # Zoxide with custom hook to run ls after directory change
 eval "$(zoxide init bash)"
 
-# Override zoxide's z command (ls handled by custom cd function)
+# Override zoxide's z command with ls integration
 z() {
     # Use the appropriate zoxide cd function based on which exists
     local zoxide_cd_func
@@ -657,16 +657,15 @@ z() {
     fi
 
     if [ "$#" -eq 0 ]; then
-        _z_cd ~
         $zoxide_cd_func ~ && ls
     elif [ "$#" -eq 1 ] && [ "$1" = '-' ]; then
         if [ -n "$OLDPWD" ]; then
-            _z_cd "$OLDPWD"
+            $zoxide_cd_func "$OLDPWD" && ls
         else
             echo 'zoxide: $OLDPWD is not set'
             return 1
         fi
     else
-        _zoxide_result="$(zoxide query -- "$@")" && _z_cd "$_zoxide_result"
+        _zoxide_result="$(zoxide query -- "$@")" && $zoxide_cd_func "$_zoxide_result" && ls
     fi
 }
