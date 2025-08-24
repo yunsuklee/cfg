@@ -646,8 +646,19 @@ eval "$(zoxide init bash)"
 
 # Override zoxide's z command (ls handled by custom cd function)
 z() {
+    # Use the appropriate zoxide cd function based on which exists
+    local zoxide_cd_func
+    if declare -f __zoxide_cd &>/dev/null; then
+        zoxide_cd_func="__zoxide_cd"
+    elif declare -f _z_cd &>/dev/null; then
+        zoxide_cd_func="_z_cd"
+    else
+        zoxide_cd_func="builtin cd"
+    fi
+
     if [ "$#" -eq 0 ]; then
         _z_cd ~
+        $zoxide_cd_func ~ && ls
     elif [ "$#" -eq 1 ] && [ "$1" = '-' ]; then
         if [ -n "$OLDPWD" ]; then
             _z_cd "$OLDPWD"
