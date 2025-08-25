@@ -20,194 +20,167 @@ vim.schedule(function()
   vim.o.clipboard = 'unnamedplus'
 end)
 
--- Temporarily disable custom clipboard to test system default
---[[
-local function setup_clipboard()
-  local is_tmux = vim.env.TMUX ~= nil
-  local is_wsl = vim.fn.has('wsl') == 1
-  local is_windows = vim.fn.has('win32') == 1 or vim.fn.has('win64') == 1
-  local is_wayland = (vim.env.WAYLAND_DISPLAY ~= nil and vim.env.WAYLAND_DISPLAY ~= '') or vim.env.XDG_SESSION_TYPE == 'wayland'
-  
-  -- Windows (native)
-  if is_windows then
-    vim.g.clipboard = {
-      name = 'windows',
-      copy = {
-        ['+'] = 'clip',
-        ['*'] = 'clip',
-      },
-      paste = {
-        ['+'] = 'powershell -noprofile -command Get-Clipboard',
-        ['*'] = 'powershell -noprofile -command Get-Clipboard',
-      },
-      cache_enabled = 0,
-    }
-  -- WSL
-  elseif is_wsl then
-    -- Try win32yank first (fastest), then fallback to clip.exe + powershell
-    if vim.fn.executable('win32yank.exe') == 1 then
-      if is_tmux then
-        vim.g.clipboard = {
-          name = 'win32yank-wsl-tmux',
-          copy = {
-            ['+'] = 'win32yank.exe -i --crlf; echo "$REPLY" | tmux load-buffer -',
-            ['*'] = 'win32yank.exe -i --crlf; echo "$REPLY" | tmux load-buffer -',
-          },
-          paste = {
-            ['+'] = 'win32yank.exe -o --lf',
-            ['*'] = 'win32yank.exe -o --lf',
-          },
-          cache_enabled = 0,
-        }
-      else
-        vim.g.clipboard = {
-          name = 'win32yank-wsl',
-          copy = {
-            ['+'] = 'win32yank.exe -i --crlf',
-            ['*'] = 'win32yank.exe -i --crlf',
-          },
-          paste = {
-            ['+'] = 'win32yank.exe -o --lf',
-            ['*'] = 'win32yank.exe -o --lf',
-          },
-          cache_enabled = 0,
-        }
-      end
-    else
-      if is_tmux then
-        vim.g.clipboard = {
-          name = 'WslClipboard-tmux',
-          copy = {
-            ['+'] = 'bash -c "tee >(clip.exe) | tmux load-buffer -"',
-            ['*'] = 'bash -c "tee >(clip.exe) | tmux load-buffer -"',
-          },
-          paste = {
-            ['+'] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
-            ['*'] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
-          },
-          cache_enabled = 0,
-        }
-      else
-        vim.g.clipboard = {
-          name = 'WslClipboard',
-          copy = {
-            ['+'] = 'clip.exe',
-            ['*'] = 'clip.exe',
-          },
-          paste = {
-            ['+'] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
-            ['*'] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
-          },
-          cache_enabled = 0,
-        }
-      end
-    end
-  -- Linux with Wayland
-  elseif is_wayland and vim.fn.executable('wl-copy') == 1 then
-    if is_tmux then
-      vim.g.clipboard = {
-        name = 'wl-clipboard-tmux',
-        copy = {
-          ['+'] = 'bash -c "tee >(wl-copy) | tmux load-buffer -"',
-          ['*'] = 'bash -c "tee >(wl-copy) | tmux load-buffer -"',
-        },
-        paste = {
-          ['+'] = 'wl-paste --no-newline',
-          ['*'] = 'wl-paste --no-newline',
-        },
-        cache_enabled = 0,
-      }
-    else
-      vim.g.clipboard = {
-        name = 'wl-clipboard',
-        copy = {
-          ['+'] = 'wl-copy',
-          ['*'] = 'wl-copy',
-        },
-        paste = {
-          ['+'] = 'wl-paste --no-newline',
-          ['*'] = 'wl-paste --no-newline',
-        },
-        cache_enabled = 0,
-      }
-    end
-  -- Linux with X11
-  elseif vim.fn.executable('xclip') == 1 then
-    if is_tmux then
-      vim.g.clipboard = {
-        name = 'xclip-simple',
-        copy = {
-          ['+'] = 'xclip -selection clipboard',
-          ['*'] = 'xclip -selection primary',
-        },
-        paste = {
-          ['+'] = 'xclip -selection clipboard -o',
-          ['*'] = 'xclip -selection primary -o',
-        },
-        cache_enabled = 0,
-      }
-    else
-      vim.g.clipboard = {
-        name = 'xclip',
-        copy = {
-          ['+'] = 'xclip -selection clipboard',
-          ['*'] = 'xclip -selection primary',
-        },
-        paste = {
-          ['+'] = 'xclip -selection clipboard -o',
-          ['*'] = 'xclip -selection primary -o',
-        },
-        cache_enabled = 0,
-      }
-    end
-  -- Fallback to xsel if available
-  elseif vim.fn.executable('xsel') == 1 then
-    if is_tmux then
-      vim.g.clipboard = {
-        name = 'xsel-tmux',
-        copy = {
-          ['+'] = 'bash -c "tee >(xsel --clipboard --input) | tmux load-buffer -"',
-          ['*'] = 'bash -c "tee >(xsel --primary --input) | tmux load-buffer -"',
-        },
-        paste = {
-          ['+'] = 'xsel --clipboard --output',
-          ['*'] = 'xsel --primary --output',
-        },
-        cache_enabled = 0,
-      }
-    else
-      vim.g.clipboard = {
-        name = 'xsel',
-        copy = {
-          ['+'] = 'xsel --clipboard --input',
-          ['*'] = 'xsel --primary --input',
-        },
-        paste = {
-          ['+'] = 'xsel --clipboard --output',
-          ['*'] = 'xsel --primary --output',
-        },
-        cache_enabled = 0,
-      }
-    end
-  -- Fallback for tmux-only environments
-  elseif is_tmux then
-    vim.g.clipboard = {
-      name = 'tmux-only',
-      copy = {
-        ['+'] = 'tmux load-buffer -',
-        ['*'] = 'tmux load-buffer -',
-      },
-      paste = {
-        ['+'] = 'tmux save-buffer -',
-        ['*'] = 'tmux save-buffer -',
-      },
-      cache_enabled = 0,
-    }
-  end
+local function is_executable(cmd)
+  return vim.fn.executable(cmd) == 1
 end
 
-setup_clipboard()
---]]
+-- Smart clipboard detection with tmux support
+local is_tmux = vim.env.TMUX ~= nil
+
+if vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1 then
+  -- Windows native: Use PowerShell
+  vim.g.clipboard = {
+    name = "powershell",
+    copy = {
+      ["+"] = "powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace(\"`r\", \"\"))",
+      ["*"] = "powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace(\"`r\", \"\"))",
+    },
+    paste = {
+      ["+"] = "powershell.exe -c Set-Clipboard $input",
+      ["*"] = "powershell.exe -c Set-Clipboard $input",
+    },
+    cache_enabled = true,
+  }
+elseif vim.fn.has("wsl") == 1 then
+  -- WSL: Use clip.exe + powershell (win32yank seems to have issues)
+  if is_executable("clip.exe") then
+    local ps_paste = "powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace(\"`r\", \"\"))"
+    
+    if is_tmux then
+      vim.g.clipboard = {
+        name = "wsl-clip-tmux",
+        copy = {
+          ["+"] = "tee >(clip.exe) | tmux load-buffer -",
+          ["*"] = "tee >(clip.exe) | tmux load-buffer -",
+        },
+        paste = {
+          ["+"] = ps_paste,
+          ["*"] = ps_paste,
+        },
+        cache_enabled = true,
+      }
+    else
+      vim.g.clipboard = {
+        name = "wsl-clip",
+        copy = {
+          ["+"] = "clip.exe",
+          ["*"] = "clip.exe",
+        },
+        paste = {
+          ["+"] = ps_paste,
+          ["*"] = ps_paste,
+        },
+        cache_enabled = true,
+      }
+    end
+  end
+elseif vim.fn.has("mac") == 1 then
+  -- macOS: Enhanced with tmux support
+  if is_tmux then
+    vim.g.clipboard = {
+      name = "pbcopy-tmux",
+      copy = {
+        ["+"] = "tee >(pbcopy) | tmux load-buffer -",
+        ["*"] = "tee >(pbcopy) | tmux load-buffer -",
+      },
+      paste = {
+        ["+"] = "pbpaste",
+        ["*"] = "pbpaste",
+      },
+      cache_enabled = true,
+    }
+  end
+elseif vim.fn.has("unix") == 1 then
+  -- Unix-like (Linux): Detect Wayland or X11 with tmux support
+  local has_wl = os.getenv("WAYLAND_DISPLAY") ~= nil
+  local has_x11 = os.getenv("DISPLAY") ~= nil
+
+  if has_wl and is_executable("wl-copy") and is_executable("wl-paste") then
+    if is_tmux then
+      vim.g.clipboard = {
+        name = "wl-clipboard-tmux",
+        copy = {
+          ["+"] = "tee >(wl-copy --foreground --type text/plain) | tmux load-buffer -",
+          ["*"] = "tee >(wl-copy --foreground --type text/plain) | tmux load-buffer -",
+        },
+        paste = {
+          ["+"] = "wl-paste --no-newline",
+          ["*"] = "wl-paste --no-newline",
+        },
+        cache_enabled = true,
+      }
+    else
+      vim.g.clipboard = {
+        name = "wl-clipboard",
+        copy = {
+          ["+"] = "wl-copy --foreground --type text/plain",
+          ["*"] = "wl-copy --foreground --type text/plain",
+        },
+        paste = {
+          ["+"] = "wl-paste --no-newline",
+          ["*"] = "wl-paste --no-newline",
+        },
+        cache_enabled = true,
+      }
+    end
+  elseif has_x11 and is_executable("xclip") then
+    if is_tmux then
+      vim.g.clipboard = {
+        name = "xclip-tmux",
+        copy = {
+          ["+"] = "tee >(xclip -selection clipboard) | tmux load-buffer -",
+          ["*"] = "tee >(xclip -selection primary) | tmux load-buffer -",
+        },
+        paste = {
+          ["+"] = "xclip -selection clipboard -o",
+          ["*"] = "xclip -selection primary -o",
+        },
+        cache_enabled = true,
+      }
+    else
+      vim.g.clipboard = {
+        name = "xclip",
+        copy = {
+          ["+"] = "xclip -selection clipboard",
+          ["*"] = "xclip -selection primary",
+        },
+        paste = {
+          ["+"] = "xclip -selection clipboard -o",
+          ["*"] = "xclip -selection primary -o",
+        },
+        cache_enabled = true,
+      }
+    end
+  elseif has_x11 and is_executable("xsel") then
+    if is_tmux then
+      vim.g.clipboard = {
+        name = "xsel-tmux",
+        copy = {
+          ["+"] = "tee >(xsel --clipboard --input) | tmux load-buffer -",
+          ["*"] = "tee >(xsel --primary --input) | tmux load-buffer -",
+        },
+        paste = {
+          ["+"] = "xsel --clipboard --output",
+          ["*"] = "xsel --primary --output",
+        },
+        cache_enabled = true,
+      }
+    else
+      vim.g.clipboard = {
+        name = "xsel",
+        copy = {
+          ["+"] = "xsel --clipboard --input",
+          ["*"] = "xsel --primary --input",
+        },
+        paste = {
+          ["+"] = "xsel --clipboard --output",
+          ["*"] = "xsel --primary --output",
+        },
+        cache_enabled = true,
+      }
+    end
+  end
+end
 
 -- Enable break indent
 vim.o.breakindent = true
