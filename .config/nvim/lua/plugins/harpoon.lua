@@ -7,14 +7,14 @@ return {
       function()
         require('harpoon'):list():add()
       end,
-      desc = 'Add file to harpoon',
+      desc = '[A]dd file to harpoon',
     },
     {
-      '<leader>o',
+      '<leader>h',
       function()
         require('harpoon').ui:toggle_quick_menu(require('harpoon'):list())
       end,
-      desc = 'Open harpoon menu',
+      desc = '[H]arpoon menu',
     },
     {
       '<leader>1',

@@ -14,6 +14,15 @@ return {
       { '<leader>s.', '<cmd>Telescope oldfiles<cr>', desc = '[S]earch Recent Files ("." for repeat)' },
       { '<leader><leader>', '<cmd>Telescope buffers<cr>', desc = '[ ] Find existing buffers' },
 
+      -- Find hidden files as well
+      {
+        '<leader>sF',
+        function()
+          require('telescope.builtin').find_files({ hidden = true })
+        end,
+        desc = '[S]earch [F]iles (including hidden)'
+      },
+
       -- Slightly advanced example of overriding default behavior and theme
       {
         '<leader>/',
