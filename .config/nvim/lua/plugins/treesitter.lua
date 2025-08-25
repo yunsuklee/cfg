@@ -1,7 +1,8 @@
 return {
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
-    event = { 'BufReadPost', 'BufNewFile' }, -- Load when opening files
+    lazy = false, -- Load immediately for syntax highlighting
+    priority = 1000, -- Load early for syntax highlighting
     build = ':TSUpdate',
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`

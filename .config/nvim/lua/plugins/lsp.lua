@@ -14,7 +14,7 @@ return {
   {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
-    event = { 'BufReadPost', 'BufNewFile' }, -- Only load when actually opening files
+    event = { 'BufReadPre', 'BufNewFile', 'VimEnter' }, -- Load earlier and on startup
     dependencies = {
       -- Automatically install LSPs and related tools to stdpath for Neovim
       -- Mason must be loaded before its dependents so we need to set it up here.
@@ -331,68 +331,34 @@ return {
         },
       }
 
-      -- Install tools on-demand when needed by filetype
-      local installed_for_ft = {} -- Track what we've already tried to install
-      
-      local function install_on_demand()
-        local filetype = vim.bo.filetype
-        
-        -- Don't reinstall if we already tried for this filetype
-        if installed_for_ft[filetype] then
-          return
-        end
-        
-        local tools_by_ft = {
-          lua = { 'lua_ls' }, -- Remove stylua for now due to installation issues
-          rust = { 'rust_analyzer' },
-          c = { 'clangd' },
-          cpp = { 'clangd' },
-          cs = { 'omnisharp' },
-          javascript = { 'vtsls' },
-          typescript = { 'vtsls' },
-          javascriptreact = { 'vtsls' },
-          typescriptreact = { 'vtsls' },
-          yaml = { 'yamlls' },
-          sh = { 'bashls' },
-          bash = { 'bashls' },
-          zig = { 'zls' },
-        }
-        
-        local tools_to_install = tools_by_ft[filetype]
-        if tools_to_install then
-          installed_for_ft[filetype] = true
-          
-          -- Install tools asynchronously to avoid blocking
-          vim.schedule(function()
-            local mason_tool_installer = require('mason-tool-installer')
-            mason_tool_installer.setup { 
-              ensure_installed = tools_to_install,
-              auto_update = false,
-              run_on_start = false, -- Don't run immediately
-            }
-            
-            -- Trigger installation manually
-            vim.defer_fn(function()
-              vim.cmd('MasonToolsInstall')
-            end, 100)
-          end)
-        end
-      end
-
-      -- Create autocommand for on-demand installation
-      vim.api.nvim_create_autocmd('FileType', {
-        callback = install_on_demand,
-        desc = 'Install LSP/formatters on demand for specific filetypes'
-      })
-
-      require('mason-tool-installer').setup { 
-        ensure_installed = {}, -- Start with empty - tools installed on demand
+      -- Ensure commonly used LSP servers are installed
+      require('mason-tool-installer').setup {
+        ensure_installed = {
+          'lua_ls',
+          'rust_analyzer', 
+          'clangd',
+          'omnisharp',
+          'vtsls',
+          'yamlls',
+          'bashls',
+          'zls',
+        },
         auto_update = false,
+        run_on_start = true,
       }
 
       require('mason-lspconfig').setup {
-        ensure_installed = {}, -- No automatic installation
-        automatic_installation = false, -- Only install when manually requested
+        ensure_installed = {
+          'lua_ls',
+          'rust_analyzer', 
+          'clangd',
+          'omnisharp',
+          'vtsls',
+          'yamlls',
+          'bashls',
+          'zls',
+        },
+        automatic_installation = true,
         handlers = {
           function(server_name)
             local server = servers[server_name] or {}
@@ -401,11 +367,6 @@ return {
             -- certain features of an LSP (for example, turning off formatting for ts_ls)
             server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
             require('lspconfig')[server_name].setup(server)
-          end,
-          ['clangd'] = function()
-            local server = servers.clangd or {}
-            server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig').clangd.setup(server)
           end,
         },
       }
