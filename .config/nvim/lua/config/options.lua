@@ -26,26 +26,80 @@ end
 
 -- Smart clipboard detection with tmux support
 local is_tmux = vim.env.TMUX ~= nil
+local is_wsl = vim.fn.has("wsl") == 1
+local is_windows_native = (vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1) and not is_wsl
 
-if vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1 then
-  -- Windows native: Use PowerShell
+-- Environment detection
+local function detect_environment()
+  if is_windows_native then
+    return "windows"
+  elseif is_wsl then
+    return "wsl"
+  elseif vim.fn.has("mac") == 1 then
+    return "macos"
+  elseif vim.fn.has("unix") == 1 then
+    local has_wl = os.getenv("WAYLAND_DISPLAY") ~= nil
+    local has_x11 = os.getenv("DISPLAY") ~= nil
+    if has_wl then
+      return "wayland"
+    elseif has_x11 then
+      return "x11"
+    else
+      return "unix"
+    end
+  end
+  return "unknown"
+end
+
+local env = detect_environment()
+
+-- Universal clipboard configuration
+if env == "windows" then
+  -- Windows native: Use PowerShell with correct syntax
   vim.g.clipboard = {
     name = "powershell",
     copy = {
-      ["+"] = "powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace(\"`r\", \"\"))",
-      ["*"] = "powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace(\"`r\", \"\"))",
+      ["+"] = "powershell.exe -NoProfile -NonInteractive -Command Set-Clipboard -Value $input",
+      ["*"] = "powershell.exe -NoProfile -NonInteractive -Command Set-Clipboard -Value $input",
     },
     paste = {
-      ["+"] = "powershell.exe -c Set-Clipboard $input",
-      ["*"] = "powershell.exe -c Set-Clipboard $input",
+      ["+"] = "powershell.exe -NoProfile -NonInteractive -Command Get-Clipboard",
+      ["*"] = "powershell.exe -NoProfile -NonInteractive -Command Get-Clipboard",
     },
     cache_enabled = true,
   }
-elseif vim.fn.has("wsl") == 1 then
-  -- WSL: Use clip.exe + powershell (win32yank seems to have issues)
-  if is_executable("clip.exe") then
-    local ps_paste = "powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace(\"`r\", \"\"))"
-    
+elseif env == "wsl" then
+  -- WSL: Prefer win32yank, fallback to clip.exe/powershell
+  if is_executable("win32yank.exe") then
+    if is_tmux then
+      vim.g.clipboard = {
+        name = "wsl-win32yank-tmux",
+        copy = {
+          ["+"] = "tee >(win32yank.exe -i --crlf) | tmux load-buffer -",
+          ["*"] = "tee >(win32yank.exe -i --crlf) | tmux load-buffer -",
+        },
+        paste = {
+          ["+"] = "win32yank.exe -o --lf",
+          ["*"] = "win32yank.exe -o --lf",
+        },
+        cache_enabled = true,
+      }
+    else
+      vim.g.clipboard = {
+        name = "wsl-win32yank",
+        copy = {
+          ["+"] = "win32yank.exe -i --crlf",
+          ["*"] = "win32yank.exe -i --crlf",
+        },
+        paste = {
+          ["+"] = "win32yank.exe -o --lf",
+          ["*"] = "win32yank.exe -o --lf",
+        },
+        cache_enabled = true,
+      }
+    end
+  elseif is_executable("clip.exe") then
+    -- Fallback to clip.exe + powershell
     if is_tmux then
       vim.g.clipboard = {
         name = "wsl-clip-tmux",
@@ -54,8 +108,8 @@ elseif vim.fn.has("wsl") == 1 then
           ["*"] = "tee >(clip.exe) | tmux load-buffer -",
         },
         paste = {
-          ["+"] = ps_paste,
-          ["*"] = ps_paste,
+          ["+"] = "powershell.exe -NoProfile -NonInteractive -Command Get-Clipboard",
+          ["*"] = "powershell.exe -NoProfile -NonInteractive -Command Get-Clipboard",
         },
         cache_enabled = true,
       }
@@ -67,14 +121,14 @@ elseif vim.fn.has("wsl") == 1 then
           ["*"] = "clip.exe",
         },
         paste = {
-          ["+"] = ps_paste,
-          ["*"] = ps_paste,
+          ["+"] = "powershell.exe -NoProfile -NonInteractive -Command Get-Clipboard",
+          ["*"] = "powershell.exe -NoProfile -NonInteractive -Command Get-Clipboard",
         },
         cache_enabled = true,
       }
     end
   end
-elseif vim.fn.has("mac") == 1 then
+elseif env == "macos" then
   -- macOS: Enhanced with tmux support
   if is_tmux then
     vim.g.clipboard = {
@@ -90,12 +144,9 @@ elseif vim.fn.has("mac") == 1 then
       cache_enabled = true,
     }
   end
-elseif vim.fn.has("unix") == 1 then
-  -- Unix-like (Linux): Detect Wayland or X11 with tmux support
-  local has_wl = os.getenv("WAYLAND_DISPLAY") ~= nil
-  local has_x11 = os.getenv("DISPLAY") ~= nil
-
-  if has_wl and is_executable("wl-copy") and is_executable("wl-paste") then
+elseif env == "wayland" then
+  -- Wayland: wl-clipboard
+  if is_executable("wl-copy") and is_executable("wl-paste") then
     if is_tmux then
       vim.g.clipboard = {
         name = "wl-clipboard-tmux",
@@ -123,7 +174,10 @@ elseif vim.fn.has("unix") == 1 then
         cache_enabled = true,
       }
     end
-  elseif has_x11 and is_executable("xclip") then
+  end
+elseif env == "x11" then
+  -- X11: Prefer xclip, fallback to xsel
+  if is_executable("xclip") then
     if is_tmux then
       vim.g.clipboard = {
         name = "xclip-tmux",
@@ -151,7 +205,7 @@ elseif vim.fn.has("unix") == 1 then
         cache_enabled = true,
       }
     end
-  elseif has_x11 and is_executable("xsel") then
+  elseif is_executable("xsel") then
     if is_tmux then
       vim.g.clipboard = {
         name = "xsel-tmux",
